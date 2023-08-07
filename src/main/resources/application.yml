@@ -1,0 +1,59 @@
+server:
+  port: 5901
+
+# 配置项目名称
+spring:
+  application:
+    name: orange
+  # 配置 mysql数据库
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/orange
+      username: root
+      password: shuai
+
+  # redis相关配置
+  redis:
+    # 配置主机
+    host: 127.0.0.1
+    # 配置使用的数据库
+    database: 0
+    # 配置指定端口
+    port: 6379
+
+project:
+  # 分页查询
+  pageSize: 5
+  # MD5加密的盐
+  salt: shuai
+
+# 设置 Mp（MyBatis-Plus）相关的配置
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix:
+      id-type: auto # 自增策略
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+
+
+  # mybatis-plus开启日志
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+# 配置 七牛云 密钥
+qiniu:          # 下面需要重新配置
+  accessKey: 1OD1LBpG_wd1bVREehVoqCecNLnUnu_Dm454dU8L
+  secretKey: FxX3fqF3dYppJVmgg0PAXPIpVlMNIOeIoTmoDAw5
+  # 桶：就是七牛云上的空间
+  bucket: shuai-shell
+
+# 微信小程序配置
+weixin:
+  # 密钥
+  #  appid: wx3cb31583481cd5c8
+  #  secret: ce8401ddc086439214924ec4b968b6f5
+  appid: wx5df81eb4d30427f5
+  secret: 6a7af2de711921bf41095dbf192adff2
