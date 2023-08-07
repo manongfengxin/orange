@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-// 和数据库表属性一一对应
-
 /**
  * @Author: fengxin
  * @CreateTime: 2023-08-04  12:14
