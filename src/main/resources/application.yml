@@ -24,7 +24,7 @@ spring:
 
 project:
   # 分页查询
-  pageSize: 5
+  pageSize: 2
   # MD5加密的盐
   salt: shuai
 

@@ -10,7 +10,7 @@ import com.shuai.handler.UserThreadLocal;
 import com.shuai.mapper.UserMapper;
 import com.shuai.pojo.bo.WxAuth;
 import com.shuai.pojo.po.User;
-import com.shuai.pojo.vo.UserVO;
+import com.shuai.pojo.vo.UserVo;
 import com.shuai.pojo.vo.WxUserInfo;
 import com.shuai.service.UserService;
 import com.shuai.service.WxService;
@@ -64,7 +64,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return: com.improve.shell.util.Result
      **/
     @Override
-    public Result loginByUser(UserVO uservo) {
+    public Result loginByUser(UserVo uservo) {
         // 通过用户名获取用户记录
         User userRecord = selectUserByUsername(uservo.getUsername());
         // 判断用户存不存在
@@ -106,7 +106,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return: com.improve.shell.util.Result
      **/
     @Override
-    public Result login(UserVO uservo) {
+    public Result login(UserVo uservo) {
         String token = JwtUtil.sign(uservo.getId());
         uservo.setOpenid(null);
         uservo.setWxUnionId(null);
@@ -124,7 +124,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return: com.improve.shell.util.Result
      **/
     @Override
-    public Result register(UserVO uservo) {
+    public Result register(UserVo uservo) {
         // 通过用户名查询数据库有没有已注册的用户记录
         User userRecord = selectUserByUsername(uservo.getUsername());
         // 判断用户存不存在
@@ -201,7 +201,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             String openid = (String) jsonObject.get("openid");
             // 给 uservo 赋值
             wxUserInfo.setOpenid(openid);
-            UserVO uservo = new UserVO();
+            UserVo uservo = new UserVo();
             uservo.from(wxUserInfo);
             // 从数据库查询此用户是否存在
             User user = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getOpenid, openid));
@@ -224,16 +224,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         /**
          * 1.获取目前登录的用户信息
          * 2.refresh 如果为true 代表刷新 重新生成 token 和 redis里面重新存储 续期
-         * 3.false 直接返回用户信息 -> 从redis中查询出来 直接返回
+         * 3.false 直接返回用户信息(从redis中查询出来), 直接返回
          */
 
-        UserVO uservo = UserThreadLocal.get();
+        UserVo uservo = UserThreadLocal.get();
         if (refresh) {
             String token = JwtUtil.sign(uservo.getId());
             uservo.setToken(token);
             redisTemplate.opsForValue().set(RedisKey.TOKEN + token, JSON.toJSONString(uservo), 7, TimeUnit.DAYS);
         }
-        return Result.success("刷新token，返回用户信息", uservo);
+        return Result.success("返回用户信息", uservo);
     }
 
     /* 登出 */

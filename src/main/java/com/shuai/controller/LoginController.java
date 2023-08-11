@@ -1,9 +1,8 @@
 package com.shuai.controller;
 
 import com.shuai.handler.NoAuth;
-import com.shuai.handler.UserThreadLocal;
 import com.shuai.pojo.bo.WxAuth;
-import com.shuai.pojo.vo.UserVO;
+import com.shuai.pojo.vo.UserVo;
 import com.shuai.service.UserService;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +30,8 @@ public class LoginController {
      * @return: com.improve.shell.util.Result
      **/
     @NoAuth
-    @PostMapping("/loginByUser")
-    public Result login(@RequestBody UserVO uservo){
+    @GetMapping("/loginByUser")
+    public Result login(@RequestBody UserVo uservo){
         log.info("传过来的uservo==>{}",uservo);
         return userService.loginByUser(uservo);
     }
@@ -47,7 +46,7 @@ public class LoginController {
      **/
     @NoAuth
     @PostMapping("/registerUser")
-    public Result registerUser(@RequestBody UserVO uservo){
+    public Result registerUser(@RequestBody UserVo uservo){
         log.info("传过来的uservo==>{}",uservo);
         return userService.register(uservo);
     }
@@ -86,17 +85,17 @@ public class LoginController {
      * @return 用户微信基本信息 + token
      */
     @NoAuth
-    @GetMapping("/userinfo")
-    public Result userinfo(boolean refresh){
+    @GetMapping("/userInfo")
+    public Result userinfo(@RequestParam("refresh") boolean refresh){
         return userService.userinfo(refresh);
     }
 
     /**
-     * @description:
+     * @description: 退出登录
      * @author: fengxin
      * @date: 2023/8/6 19:04
      * @param:
-     * @return:
+     * @return: 是否成功
      **/
     @DeleteMapping("/logout")
     public Result logout() {

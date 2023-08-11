@@ -1,17 +1,17 @@
 package com.shuai.handler;
 
-import com.shuai.pojo.vo.UserVO;
+
+import com.shuai.pojo.vo.UserVo;
 
 public class UserThreadLocal {
 
+    private static final ThreadLocal<UserVo> LOCAL = new ThreadLocal<>();
 
-    private static final ThreadLocal<UserVO> LOCAL = new ThreadLocal<>();
-
-    public static void put(UserVO uservo){
+    public static void put(UserVo uservo){
         LOCAL.set(uservo);
     }
 
-    public static UserVO get(){
+    public static UserVo get(){
         return LOCAL.get();
     }
 

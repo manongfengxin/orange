@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
  * @CreateTime: 2023-08-04  12:14
  * @Description: 订单表
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class Order {
-
-
-
-
-
-}
+//@Data
+//@AllArgsConstructor
+//@NoArgsConstructor
+//public class Order {
+//
+//
+//
+//
+//
+//}

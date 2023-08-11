@@ -3,7 +3,6 @@ package com.shuai.controller;
 
 import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.payment.page.models.AlipayTradePagePayResponse;
-import com.shuai.pojo.po.Order;
 import com.shuai.pojo.vo.AliPay;
 import org.springframework.web.bind.annotation.*;
 

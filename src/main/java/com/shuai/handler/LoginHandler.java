@@ -2,7 +2,7 @@ package com.shuai.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.shuai.pojo.vo.UserVO;
+import com.shuai.pojo.vo.UserVo;
 import com.shuai.util.JwtUtil;
 import com.shuai.util.RedisKey;
 import com.shuai.util.Result;
@@ -69,7 +69,7 @@ public class LoginHandler implements HandlerInterceptor {
             response.getWriter().write(JSON.toJSONString(Result.fail("未登录!")));
             return false;
         }
-        UserVO uservo = JSON.parseObject(userJson, UserVO.class);
+        UserVo uservo = JSON.parseObject(userJson, UserVo.class);
         UserThreadLocal.put(uservo);
         return true;
 

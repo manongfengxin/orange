@@ -1,7 +1,7 @@
 package com.shuai.controller;
 
 import com.shuai.handler.UserThreadLocal;
-import com.shuai.pojo.vo.UserVO;
+import com.shuai.pojo.vo.UserVo;
 import com.shuai.service.ChatRecordService;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class ChatController {
     public Result getChatRecord(@RequestParam(defaultValue = "0", name = "friendId")Long friendId){
         log.info("传过来的参数：friendId = {}",friendId);
         // 1.拿到当前用户
-        UserVO userVO = UserThreadLocal.get();
+        UserVo userVO = UserThreadLocal.get();
         // 2.通过当前用户id拿到关于这个用户的所有聊天记录
         HashMap<Long, List<Object>> chatRecord = chatRecordService.getChatRecord(userVO.getId(),friendId);
         log.info("返回给前端的数据：{}",chatRecord);

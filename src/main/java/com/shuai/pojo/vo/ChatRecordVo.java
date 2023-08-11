@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatRecordVO {
+public class ChatRecordVo {
 
     // 来自from用户发来的信息
     private Long fromId;

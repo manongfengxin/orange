@@ -1,24 +1,24 @@
-package com.shuai.pojo.po;
+package com.shuai.pojo.vo;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author: fengxin
- * @CreateTime: 2023-08-07  10:58
- * @Description: 帖子表
+ * @CreateTime: 2023-08-07  15:21
+ * @Description: 论坛帖子信息 给前端
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Post implements Serializable {
+@AllArgsConstructor
+public class PostVo {
 
     // 帖子id（主键：发帖人id + 发布时间）
-    private String id;
+    private String postId;
 
     // 作者 id
     private Long authorId;
@@ -37,5 +37,23 @@ public class Post implements Serializable {
 
     // 首图
     private String postFirstPicture;
+
+    // 点赞量
+    private Integer likes;
+
+    // 收藏量
+    private Integer collections;
+
+    // 评论数
+    private Integer comments;
+
+    // 作者昵称
+    private String nickname;
+
+    // 作者头像
+    private String avatar;
+
+    // 帖子图片集
+    private List<String> images = new ArrayList<>();
 
 }

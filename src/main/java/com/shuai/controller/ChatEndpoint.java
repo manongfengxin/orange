@@ -3,7 +3,7 @@ package com.shuai.controller;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.shuai.pojo.po.ChatRecord;
-import com.shuai.pojo.vo.ChatRecordVO;
+import com.shuai.pojo.vo.ChatRecordVo;
 import com.shuai.service.ChatRecordService;
 import com.shuai.util.MessageUtils;
 import com.shuai.util.MyBeanUtil;
@@ -113,7 +113,7 @@ public class ChatEndpoint {
             // 3.获取消息数据
             String content = obj.getStr("content");
 
-            ChatRecordVO chatRecordVO = new ChatRecordVO(senderId,receiverId,content,messageType);
+            ChatRecordVo chatRecordVO = new ChatRecordVo(senderId,receiverId,content,messageType);
             // 判断用户toId是否在线
             if (onlineUsers.containsKey(1L)) {
                 // 用户toId在线：

@@ -14,6 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostImage {
 
+    // 主键（帖子id + index）
+    private String id;
+
     // 帖子 id
     private String postId;
 

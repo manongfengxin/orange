@@ -44,7 +44,7 @@ public class User implements Serializable {
     private String openid;
 
     // 联合id
-    private String wxunionid;
+    private String wxUnionId;
 
     // 角色身份
     private String role;

@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserVO implements Serializable {
+public class UserVo implements Serializable {
 
     // 主键
     @TableId(value = "id",type = IdType.AUTO)

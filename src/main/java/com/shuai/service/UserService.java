@@ -3,7 +3,7 @@ package com.shuai.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.shuai.pojo.bo.WxAuth;
 import com.shuai.pojo.po.User;
-import com.shuai.pojo.vo.UserVO;
+import com.shuai.pojo.vo.UserVo;
 import com.shuai.util.Result;
 
 /**
@@ -20,21 +20,21 @@ public interface UserService extends IService<User> {
      * @param: [uservo]
      * @return: com.improve.shell.util.Result
      **/
-    Result loginByUser(UserVO uservo);
+    Result loginByUser(UserVo uservo);
 
     /*
      * 签发token
      * @param: [uservo]
      * @return: UserVO（含token）
      **/
-    Result login(UserVO uservo);
+    Result login(UserVo uservo);
 
     /*
      * 注册用户名
      * @param: [uservo]
      * @return:
      **/
-    Result register(UserVO uservo);
+    Result register(UserVo uservo);
 
     // 获取sessionId
     Result getSessionId(String code);

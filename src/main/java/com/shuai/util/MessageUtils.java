@@ -1,7 +1,7 @@
 package com.shuai.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.improve.shell.pojo.vo.ResultMessage;
+import com.shuai.pojo.vo.ResultMessage;
 
 /**
  * @Author: fengxin
