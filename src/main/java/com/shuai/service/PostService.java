@@ -7,6 +7,8 @@ import com.shuai.pojo.po.Post;
 import com.shuai.pojo.vo.PostVo;
 import com.shuai.util.Result;
 
+import java.util.HashMap;
+
 public interface PostService extends IService<Post> {
 
     // 发布帖子
@@ -22,7 +24,7 @@ public interface PostService extends IService<Post> {
     IPage<PostVo> latestList(String title, Page<Post> page);
 
     // 获取指定帖子详情信息
-    Result details(String postId);
+    HashMap<String, Object> details(String postId);
 
     // 获取指定帖子的简要信息
     PostVo brief(String postId);

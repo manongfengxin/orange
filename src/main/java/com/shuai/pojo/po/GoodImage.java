@@ -14,6 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GoodImage {
 
+    // 主键（商品 id + index）
+    private String id;
+
     // 商品 id
     private String goodId;
 

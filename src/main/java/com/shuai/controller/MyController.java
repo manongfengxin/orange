@@ -78,9 +78,5 @@ public class MyController {
 
 
 
-    @GetMapping("/getGoodFootprint")
-    public Result getGoodFootprint() {
-        return null;
-    }
 
 }

@@ -2,8 +2,10 @@ package com.shuai.controller;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.shuai.pojo.bo.Inform;
 import com.shuai.pojo.po.ChatRecord;
 import com.shuai.pojo.vo.ChatRecordVo;
+import com.shuai.pojo.vo.ResultMessage;
 import com.shuai.service.ChatRecordService;
 import com.shuai.util.MessageUtils;
 import com.shuai.util.MyBeanUtil;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -115,13 +118,13 @@ public class ChatEndpoint {
 
             ChatRecordVo chatRecordVO = new ChatRecordVo(senderId,receiverId,content,messageType);
             // 判断用户toId是否在线
-            if (onlineUsers.containsKey(1L)) {
+            if (onlineUsers.containsKey(receiverId)) {
                 // 用户toId在线：
                 // 4.封装成系统发送给用户的消息格式
                 String resultMessage = MessageUtils.getMessage(false, senderId, content);
                 // 5.服务器向指定（id）客户端发送数据
                 /**/// 5.1 获取接收消息用户id对应的ChatEndpoint对象
-                Session receiverSession = onlineUsers.get(1L);
+                Session receiverSession = onlineUsers.get(receiverId);
                 // 5.2 通过ChatEndpoint对象给对应在线用户发送系统消息
                 receiverSession.getBasicRemote().sendText(resultMessage);
             }
@@ -190,4 +193,35 @@ public class ChatEndpoint {
         error.printStackTrace();
     }
 
+
+    /**
+     * @description: 自定义，系统给用户发送消息
+     * @author: fengxin
+     * @date: 2023/8/11 19:50
+     * @param: [inform]
+     * @return: void
+     **/
+    public static void sendInfo(Inform inform)  {
+        log.info("调用服务器给客户端发送系统信息，{}",inform);
+        // 1. 发送者id
+        Long fromId = inform.getFromId();
+        // 2. 接收者id
+        Long toId = inform.getToId();
+        // 3. 判断用户toId是否在线
+        if (onlineUsers.containsKey(toId)) {   // 用户toId在线：
+            log.info("用户toId在线");
+            // 4.封装成系统发送给用户的消息格式
+            String resultMessage = MessageUtils.getMessage(true, fromId, inform);
+            // 5.服务器向指定（id）客户端发送数据
+            // 5.1 获取接收消息用户id对应的ChatEndpoint对象
+            Session receiverSession = onlineUsers.get(toId);
+            // 5.2 通过ChatEndpoint对象给对应在线用户发送系统消息
+            try {
+                receiverSession.getBasicRemote().sendText(resultMessage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            log.info("发送在线系统信息成功！");
+        }else log.info("用户toId 不在线 ");
+    }
 }

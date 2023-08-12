@@ -3,6 +3,7 @@ package com.shuai.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuai.pojo.po.Comment;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @Author: fengxin
@@ -12,4 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CommentMapper extends BaseMapper<Comment> {
 
+    // 删除评论及其子评论
+    int deleteComment(@Param("commentId") String commentId);
 }

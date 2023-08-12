@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.shuai.pojo.vo.UserVo;
 import com.shuai.util.JwtUtil;
-import com.shuai.util.RedisKey;
+import com.shuai.common.RedisKey;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

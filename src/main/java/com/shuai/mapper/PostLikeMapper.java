@@ -3,6 +3,7 @@ package com.shuai.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuai.pojo.po.PostLike;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @Author: fengxin
@@ -11,5 +12,6 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface PostLikeMapper extends BaseMapper<PostLike> {
+
 
 }

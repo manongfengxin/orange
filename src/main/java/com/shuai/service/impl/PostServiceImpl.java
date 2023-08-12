@@ -182,7 +182,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     }
 
     @Override
-    public Result details(String postId) {
+    public HashMap<String, Object> details(String postId) {
         // 0. 拿到当前用户id
         Long userId = UserThreadLocal.get().getId();
         // 1.通过帖子id查询指定帖子
@@ -204,7 +204,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         Concern concernInfo = concernMapper.selectOne(
                 new LambdaQueryWrapper<Concern>()
                         .eq(Concern::getUserId, userId)
-                        .eq(Concern::getConcernedId, authorId));
+                        .eq(Concern::getConcernedId, authorId)
+                        .eq(Concern::getDeleted,0));
         int concern = -1;
         if (!Objects.equals(userId,authorId)) {  // 是否当前用户就是作者（则无法构成关注关系）
             if (Objects.equals(concernInfo,null)) {  // 是否关注
@@ -217,14 +218,16 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         PostLike postLikeInfo = postLikeMapper.selectOne(
                 new LambdaQueryWrapper<PostLike>()
                         .eq(PostLike::getUserId, userId)
-                        .eq(PostLike::getPostId, postId));
+                        .eq(PostLike::getPostId, postId)
+                        .eq(PostLike::getDeleted,0));
         boolean like;
         like = !Objects.equals(postLikeInfo, null);
         // 7.查询对该篇帖子的收藏情况
         PostCollect postCollectInfo = postCollectMapper.selectOne(
                 new LambdaQueryWrapper<PostCollect>()
                         .eq(PostCollect::getUserId, userId)
-                        .eq(PostCollect::getPostId, postId));
+                        .eq(PostCollect::getPostId, postId)
+                        .eq(PostCollect::getDeleted,0));
         boolean collect;
         collect = !Objects.equals(postCollectInfo, null);
         // 8.拼接返回信息
@@ -240,7 +243,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                 id,userId,postId,null,TimeUtil.getNowTime(),1,0);
         footprintMapper.insert(footprint);
 
-        return Result.success("获取帖子详情信息",postDetails);
+        return postDetails;
     }
 
     @Override
@@ -278,11 +281,11 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     private PostVo selectExtra(Post post, String postId, Long userId) {
         // 1. 查询点赞量
         LambdaQueryWrapper<PostLike> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.eq(PostLike::getPostId, postId);
+        queryWrapper1.eq(PostLike::getPostId, postId).eq(PostLike::getDeleted,0);
         Integer likes = postLikeMapper.selectList(queryWrapper1).size();
         // 2. 查询收藏量
         LambdaQueryWrapper<PostCollect> queryWrapper2 = new LambdaQueryWrapper<>();
-        queryWrapper2.eq(PostCollect::getPostId, postId);
+        queryWrapper2.eq(PostCollect::getPostId, postId).eq(PostCollect::getDeleted,0);
         Integer collections = postCollectMapper.selectList(queryWrapper2).size();
         // 3. 查询评论数
         LambdaQueryWrapper<Comment> queryWrapper3 = new LambdaQueryWrapper<>();

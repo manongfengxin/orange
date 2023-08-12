@@ -40,7 +40,8 @@ public class ConcernServiceImpl implements ConcernService {
             Concern concern = concernMapper.selectOne(
                     new LambdaQueryWrapper<Concern>()
                             .eq(Concern::getUserId, userBo.getOtherId())
-                            .eq(Concern::getConcernedId, userId));
+                            .eq(Concern::getConcernedId, userId)
+                            .eq(Concern::getDeleted,0));
             // 3. 是否关注信息存入集合
             userBo.setConcerned(!Objects.equals(concern, null));
         }
@@ -58,7 +59,8 @@ public class ConcernServiceImpl implements ConcernService {
             Concern concern = concernMapper.selectOne(
                     new LambdaQueryWrapper<Concern>()
                             .eq(Concern::getUserId, userId)
-                            .eq(Concern::getConcernedId, userBo.getOtherId()));
+                            .eq(Concern::getConcernedId, userBo.getOtherId())
+                            .eq(Concern::getDeleted,0));
             // 3. 是否关注信息存入集合
             userBo.setConcerned(!Objects.equals(concern, null));
         }

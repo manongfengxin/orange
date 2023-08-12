@@ -1,30 +1,27 @@
 package com.shuai.pojo.po;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
  * @Author: fengxin
- * @CreateTime: 2023-08-07  11:51
- * @Description: 评论点赞表
+ * @CreateTime: 2023-08-11  15:51
+ * @Description: 商品评价点赞表
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentLike {
+public class ReviewLike {
 
-    // 主键（用户id + 评论id）
+    // 用户id + 商品id
     private String id;
 
     // 用户 id
     private Long userId;
 
-    // 评论 id
-    private String commentId;
+    // 商品 id
+    private String reviewId;
 
     // 逻辑删除(1：已删除；0：未删除)
     private Integer deleted;

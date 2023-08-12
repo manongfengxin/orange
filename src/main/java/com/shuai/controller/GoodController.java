@@ -1,6 +1,8 @@
 package com.shuai.controller;
 
+import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,4 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/good")
 public class GoodController {
+
+
+
+
+
+
+
+
+
+
+
+    @GetMapping("/getGoodFootprint")
+    public Result getGoodFootprint() {
+        return null;
+    }
 }

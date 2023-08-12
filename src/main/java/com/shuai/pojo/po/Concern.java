@@ -27,11 +27,9 @@ public class Concern {
     private Long concernedId;
 
     // 逻辑删除(1：已删除；0：未删除)
-    @TableLogic
     private Integer deleted;
 
     // 关注时间
-    @TableField(fill = FieldFill.INSERT)
     private String concernTime;
 
 }

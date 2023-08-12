@@ -4,7 +4,7 @@ import cn.hutool.core.codec.Base64;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.shuai.service.WxService;
-import com.shuai.util.RedisKey;
+import com.shuai.common.RedisKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;

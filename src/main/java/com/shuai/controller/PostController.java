@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.shuai.handler.UserThreadLocal;
 import com.shuai.pojo.po.Footprint;
 import com.shuai.pojo.po.Post;
+import com.shuai.pojo.vo.CommentVo;
 import com.shuai.pojo.vo.PostVo;
 import com.shuai.pojo.vo.UserVo;
+import com.shuai.service.CommentService;
 import com.shuai.service.FootprintService;
 import com.shuai.service.PostService;
 import com.shuai.util.Result;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -37,6 +40,9 @@ public class PostController {
 
     @Autowired
     private FootprintService footprintService;
+
+    @Autowired
+    private CommentService commentService;
 
 
     /**
@@ -67,10 +73,10 @@ public class PostController {
 
 
     /**
-     * @description: 最热帖子列表
+     * @description: 最热帖子列表（可传入关键词）
      * @author: fengxin
      * @date: 2023/8/8 9:06
-     * @param: [current]
+     * @param: [title, current]
      * @return: 帖子列表
      **/
     @GetMapping("/hottestList")
@@ -82,10 +88,10 @@ public class PostController {
 
 
     /**
-     * @description: 最新帖子列表
+     * @description: 最新帖子列表（可传入关键词）
      * @author: fengxin
      * @date: 2023/8/8 9:06
-     * @param: [current]
+     * @param: [title, current]
      * @return: 帖子列表（包括列表长度）
      **/
     @GetMapping("/latestList")
@@ -105,7 +111,13 @@ public class PostController {
     @GetMapping("/details")
     public Result details(@RequestParam("postId") String postId) {
         log.info("postId==>{}",postId);
-        return postService.details(postId);
+        // 1. 查询指定帖子详情信息（不包含评论信息）
+        HashMap<String, Object> details = postService.details(postId);
+        // 2. 查询指定帖子的评论信息
+        ArrayList<CommentVo> commentList = commentService.getCommentList(postId);
+        // 3. 加入评论信息
+        details.put("commentList",commentList);
+        return Result.success("获取帖子详情信息",details);
     }
 
     /**

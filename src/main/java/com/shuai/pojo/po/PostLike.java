@@ -26,11 +26,9 @@ public class PostLike {
     private String postId;
 
     // 逻辑删除(1：已删除；0：未删除)
-    @TableLogic
     private Integer deleted;
 
     // 点赞时间
-    @TableField(fill = FieldFill.INSERT)
     private String likeTime;
 
 }
