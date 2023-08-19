@@ -3,7 +3,13 @@ package com.shuai.controller;
 
 import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.payment.page.models.AlipayTradePagePayResponse;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.shuai.pojo.po.Good;
+import com.shuai.pojo.po.Order;
 import com.shuai.pojo.vo.AliPay;
+import com.shuai.service.GoodService;
+import com.shuai.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,9 +26,11 @@ import java.util.Map;
 //public class AliPayController {
 //
 //
+//    @Autowired
+//    private OrderService orderService;
 //
-//
-//
+//    @Autowired
+//    private GoodService goodService;
 //
 //
 //    @GetMapping("/pay")
@@ -62,12 +70,13 @@ import java.util.Map;
 //                System.out.println("买家付款时间: " + params.get("gmt_payment"));
 //                System.out.println("买家付款金额: " + params.get("buyer_pay_amount"));
 //                // 更新订单未支付 -> 已支付
-//                Order order = orderService.selectByOrder(tradeNo);
+//                Order order = orderService.getOne(
+//                        new LambdaQueryWrapper<Order>().eq(Order::getOrderNo,tradeNo));
 //                if (order != null) {
-//                    Integer goodsId = order.getGoodsId();
-//                    Goods goods = goodsService.getById(goodsId);
-//                    goods.setSum(goods.getSum() - 1);
-//                    goodsService.updateById(goods);
+//                    String goodId = order.getGoodId();
+//                    Good good = goodService.getById(goodId);
+//                    good.setGoodSales(good.getGoodSales() + 1);
+//                    goodService.updateById(good);
 //                    orderMapper.updateState(tradeNo, 1, gmtPayment);
 //                } else {
 //                    Integer userId = JwtHelper.getUserId(token);

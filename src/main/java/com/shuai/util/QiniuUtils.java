@@ -40,7 +40,7 @@ public class QiniuUtils {
      * @return: java.lang.String
      **/
     public String upload(String filepath,String fileName){
-        Configuration configuration = new Configuration(Region.region0());
+        Configuration configuration = new Configuration(Region.regionCnEast2());
         UploadManager uploadManager = new UploadManager(configuration);
         Auth auth = Auth.create(accessKey, secretKey);
         String uploadToken = auth.uploadToken(bucket);
@@ -65,7 +65,7 @@ public class QiniuUtils {
      * @return: java.lang.String
      **/
     public String upload(byte[] bytes,String fileName){
-        Configuration configuration = new Configuration(Region.region0());
+        Configuration configuration = new Configuration(Region.regionCnEast2());
         UploadManager uploadManager = new UploadManager(configuration);
         Auth auth = Auth.create(accessKey, secretKey);
         String uploadToken = auth.uploadToken(bucket);
@@ -90,7 +90,7 @@ public class QiniuUtils {
      * @return: java.lang.String
      **/
     public String upload(InputStream stream, String fileName){
-        Configuration configuration = new Configuration(Region.region0());
+        Configuration configuration = new Configuration(Region.regionCnEast2());
         UploadManager uploadManager = new UploadManager(configuration);
         Auth auth = Auth.create(accessKey, secretKey);
         String uploadToken = auth.uploadToken(bucket);
@@ -119,7 +119,7 @@ public class QiniuUtils {
      **/
     public void delete(String fileName){
         //构造一个指定的 Region 对象的配置类
-        Configuration configuration = new Configuration(Region.region0());
+        Configuration configuration = new Configuration(Region.regionCnEast2());
         Auth auth = Auth.create(accessKey,secretKey);
         BucketManager bucketManager = new BucketManager(auth,configuration);
         try {

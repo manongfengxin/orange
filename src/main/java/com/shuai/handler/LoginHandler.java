@@ -6,6 +6,7 @@ import com.shuai.pojo.vo.UserVo;
 import com.shuai.util.JwtUtil;
 import com.shuai.common.RedisKey;
 import com.shuai.util.Result;
+import com.shuai.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -40,6 +41,7 @@ public class LoginHandler implements HandlerInterceptor {
          */
 
         log.info("请求路径：{}",request.getRequestURL());
+        log.info("请求时间：{}", TimeUtil.getNowTime());
         log.info("request==>{}",request);
         log.info("handler==>{}",handler);
         log.info("token==>{}",request.getHeader("Authorization"));

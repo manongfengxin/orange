@@ -23,7 +23,7 @@ public class Cart {
     private String goodId;
 
     // 商品的数量
-    private Integer goodsNumber;
+    private Integer goodNumber;
 
     // 所属用户的id
     private Long userId;

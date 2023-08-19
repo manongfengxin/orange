@@ -4,6 +4,7 @@ import com.shuai.service.CollectService;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
+@Transactional
 @RequestMapping("/collect")
 public class CollectController {
 
@@ -33,6 +35,18 @@ public class CollectController {
     @PostMapping("/post")
     public Result collectPost(@RequestParam("postId")String postId) {
         return collectService.collectPost(postId);
+    }
+
+    /**
+     * @description: 收藏指定商品（二次点击取消收藏）
+     * @author: fengxin
+     * @date: 2023/8/14 15:00
+     * @param: [goodId]
+     * @return: 是否成功
+     **/
+    @PostMapping("/good")
+    public Result collectGood(@RequestParam("goodId")String goodId) {
+        return collectService.collectGood(goodId);
     }
 
 }

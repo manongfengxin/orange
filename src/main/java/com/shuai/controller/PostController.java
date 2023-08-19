@@ -16,6 +16,7 @@ import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
+@Transactional
 @RequestMapping("/post")
 public class PostController {
 
@@ -59,6 +61,19 @@ public class PostController {
     }
 
     /**
+     * @description: 删除指定帖子，及其相关数据
+     * @author: fengxin
+     * @date: 2023/8/12 12:47
+     * @param: [postId]
+     * @return: 是否成功
+     **/
+    @DeleteMapping("/delete")
+    public Result delete(@RequestParam("postId")String postId) {
+        log.info("传入：{}",postId);
+        return postService.delete(postId);
+    }
+
+    /**
      * @description: 修改帖子
      * @author: fengxin
      * @date: 2023/8/8 10:44
@@ -80,7 +95,8 @@ public class PostController {
      * @return: 帖子列表
      **/
     @GetMapping("/hottestList")
-    public Result hottestList(@RequestParam("title")String title, @RequestParam(defaultValue = "1", name = "current") Integer current) {
+    public Result hottestList(@RequestParam(defaultValue = "",name = "title")String title,
+                              @RequestParam(defaultValue = "1", name = "current") Integer current) {
         log.info("current==>{}",current);
         IPage<PostVo> page = postService.hottestList(title, new Page<Post>(current, Long.parseLong(pageSize)));
         return Result.success("最热帖子列表",page);
@@ -95,7 +111,8 @@ public class PostController {
      * @return: 帖子列表（包括列表长度）
      **/
     @GetMapping("/latestList")
-    public Result latestList(@RequestParam("title")String title, @RequestParam(defaultValue = "1", name = "current") Integer current) {
+    public Result latestList(@RequestParam(defaultValue = "",name = "title")String title,
+                             @RequestParam(defaultValue = "1", name = "current") Integer current) {
         log.info("current==>{}",current);
         IPage<PostVo> page = postService.latestList(title, new Page<>(current, Long.parseLong(pageSize)));
         return Result.success("最新帖子列表",page);
@@ -113,10 +130,10 @@ public class PostController {
         log.info("postId==>{}",postId);
         // 1. 查询指定帖子详情信息（不包含评论信息）
         HashMap<String, Object> details = postService.details(postId);
-        // 2. 查询指定帖子的评论信息
-        ArrayList<CommentVo> commentList = commentService.getCommentList(postId);
-        // 3. 加入评论信息
-        details.put("commentList",commentList);
+//        // 2. 查询指定帖子的评论信息
+//        ArrayList<CommentVo> commentList = commentService.getCommentList(postId);
+//        // 3. 加入评论信息
+//        details.put("commentList",commentList);
         return Result.success("获取帖子详情信息",details);
     }
 
@@ -144,6 +161,7 @@ public class PostController {
         }
         return Result.success("帖子浏览记录",postVoList);
     }
+
 
 
 

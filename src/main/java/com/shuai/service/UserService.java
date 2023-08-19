@@ -47,4 +47,7 @@ public interface UserService extends IService<User> {
 
     // 用户登出
     Result logout();
+
+    // 修改个人信息
+    Result updateInfo(User user);
 }

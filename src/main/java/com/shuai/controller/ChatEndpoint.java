@@ -2,16 +2,20 @@ package com.shuai.controller;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.shuai.pojo.bo.Inform;
+import com.shuai.common.Constants;
+import com.shuai.mapper.UserMapper;
+import com.shuai.pojo.po.Inform;
 import com.shuai.pojo.po.ChatRecord;
-import com.shuai.pojo.vo.ChatRecordVo;
-import com.shuai.pojo.vo.ResultMessage;
+import com.shuai.pojo.po.User;
+import com.shuai.pojo.bo.ChatRecordBo;
+import com.shuai.pojo.vo.InformVo;
 import com.shuai.service.ChatRecordService;
 import com.shuai.util.MessageUtils;
 import com.shuai.util.MyBeanUtil;
 import com.shuai.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import javax.websocket.*;
@@ -19,6 +23,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,6 +36,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Controller
 @ServerEndpoint("/chat/{id}")
 public class ChatEndpoint {
+
+    @Autowired
+    private UserMapper userMapper;
 
     // 用来存储每一个客户端对象对应的 ChatEndpoint 对象
     private static Map<Long, Session> onlineUsers = new ConcurrentHashMap<>();
@@ -58,7 +66,7 @@ public class ChatEndpoint {
         log.info("当前在线用户：{}",ids);
 
         // 2.封装成系统发送给用户的消息格式
-        String resultMessage = MessageUtils.getMessage(true, null, ids);
+        String resultMessage = MessageUtils.getMessage(Constants.SYSTEM_MESSAGE, null, ids);
         // 3.通过遍历所有的在线用户id
         for (Long id : ids) {
             /**/// 获取每个在线用户的id，通过id拿到对应的ChatEndpoint对象
@@ -105,6 +113,14 @@ public class ChatEndpoint {
     @OnMessage
     public void onMessage(String message, Session session) {
         log.info("进入onMessage方法，接收到用户id：{}发来信息：{}",id/*uservo.getUsername()*/,message);
+        User userInfo = userMapper.selectById(id);
+        String role = userInfo.getRole();
+        String informType = Constants.USER_MESSAGE;
+        if (Objects.equals(role,"商家")) {
+            informType = Constants.GOOD_MESSAGE;
+        }else if (Objects.equals(role,"专家")) {
+            informType = Constants.EXPERT_MESSAGE;
+        }
 
         try {
             // 1.将局部变量message转换成JSONObject对象
@@ -116,12 +132,12 @@ public class ChatEndpoint {
             // 3.获取消息数据
             String content = obj.getStr("content");
 
-            ChatRecordVo chatRecordVO = new ChatRecordVo(senderId,receiverId,content,messageType);
+            ChatRecordBo chatRecordBo = new ChatRecordBo(senderId,receiverId,content,messageType);
             // 判断用户toId是否在线
             if (onlineUsers.containsKey(receiverId)) {
                 // 用户toId在线：
                 // 4.封装成系统发送给用户的消息格式
-                String resultMessage = MessageUtils.getMessage(false, senderId, content);
+                String resultMessage = MessageUtils.getMessage(informType, senderId, content);
                 // 5.服务器向指定（id）客户端发送数据
                 /**/// 5.1 获取接收消息用户id对应的ChatEndpoint对象
                 Session receiverSession = onlineUsers.get(receiverId);
@@ -129,14 +145,14 @@ public class ChatEndpoint {
                 receiverSession.getBasicRemote().sendText(resultMessage);
             }
             // 6.向发送者反馈发送成功
-            String returnMessage = MessageUtils.getMessage(true, null,"发送成功！");
+            String returnMessage = MessageUtils.getMessage(Constants.USER_MESSAGE, null,"发送成功！");
             Session senderSession = onlineUsers.get(senderId);
             senderSession.getBasicRemote().sendText(returnMessage);
 
             // 将当前用户发送的消息记录到数据库
             ChatRecord chatRecord = new ChatRecord();
-            // 把chatRecordvo里的值都赋值给chatRecord
-            BeanUtils.copyProperties(chatRecordVO,chatRecord);
+            // 把chatRecordBo里的值都赋值给chatRecord
+            BeanUtils.copyProperties(chatRecordBo,chatRecord);
             // 获取当前时间
             String nowTime = TimeUtil.getNowTime();
             String cid = "" + id/*uservo.getId()*/ + nowTime + receiverId;
@@ -201,17 +217,17 @@ public class ChatEndpoint {
      * @param: [inform]
      * @return: void
      **/
-    public static void sendInfo(Inform inform)  {
-        log.info("调用服务器给客户端发送系统信息，{}",inform);
+    public static void sendInfo(InformVo informVo)  {
+        log.info("调用服务器给客户端发送系统信息，{}",informVo);
         // 1. 发送者id
-        Long fromId = inform.getFromId();
+        Long fromId = informVo.getFromId();
         // 2. 接收者id
-        Long toId = inform.getToId();
+        Long toId = informVo.getToId();
         // 3. 判断用户toId是否在线
         if (onlineUsers.containsKey(toId)) {   // 用户toId在线：
             log.info("用户toId在线");
             // 4.封装成系统发送给用户的消息格式
-            String resultMessage = MessageUtils.getMessage(true, fromId, inform);
+            String resultMessage = MessageUtils.getMessage(Constants.SYSTEM_MESSAGE, fromId, informVo);
             // 5.服务器向指定（id）客户端发送数据
             // 5.1 获取接收消息用户id对应的ChatEndpoint对象
             Session receiverSession = onlineUsers.get(toId);

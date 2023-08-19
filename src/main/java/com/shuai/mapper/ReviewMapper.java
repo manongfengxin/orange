@@ -3,6 +3,7 @@ package com.shuai.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuai.pojo.po.Review;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @Author: fengxin
@@ -11,4 +12,8 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface ReviewMapper extends BaseMapper<Review> {
+
+    // 删除评价及其子评价
+    int deleteReview(@Param("reviewId")String reviewId);
 }
+

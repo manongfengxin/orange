@@ -1,5 +1,6 @@
 package com.shuai.controller;
 
+import com.shuai.handler.NoAuth;
 import com.shuai.util.QiniuUtils;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class FileController {
 
     @Autowired
     private QiniuUtils qiniuUtils;
+
 
     @PostMapping("/upload")
     public Result upload(@RequestBody MultipartFile file) throws IOException {

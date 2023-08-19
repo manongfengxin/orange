@@ -22,11 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
+@Transactional
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
 
@@ -44,7 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserMapper userMapper;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String,Object> redisTemplate;
 
     @Value("${weixin.appid}")
     private String appid;
@@ -159,16 +158,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
          * 5. 生成sessionId，当用户点击登录时，可以标识用户身份
          */
 
-        String url = "https://api.weixin.qq.com/sns/jscode2session?appid="+
+//        String url = "https://api.weixin.qq.com/sns/jscode2session?appid="+
+//                appid + "&secret=" + secret + "&js_code=" + code + "&grant_type=authorization_code";
+//        String res = HttpUtil.get(url);
+//        // 随机生成一组字符串uuid，在redis中充当 key的主体部分，value存入真正的sessionId
+//        String uuid = UUID.randomUUID().toString();                                       //保存30分钟
+//        redisTemplate.opsForValue().set(RedisKey.WX_SESSION_ID + uuid,res,30, TimeUnit.MINUTES);
+//        // 将随机生成的uuid作为sessionId传回前端
+//        Map<String,String> map = new HashMap<>();
+//        map.put("sessionId",uuid);
+//        log.info("sessionId==>{}",uuid);
+        String replaceUrl = "https://api.weixin.qq.com/sns/jscode2session?appid="+
                 appid + "&secret=" + secret + "&js_code=" + code + "&grant_type=authorization_code";
-        String res = HttpUtil.get(url);
-        // 随机生成一组字符串uuid，在redis中充当 key的主体部分，value存入真正的sessionId
-        String uuid = UUID.randomUUID().toString();                                       //保存30分钟
-        redisTemplate.opsForValue().set(RedisKey.WX_SESSION_ID + uuid,res,30, TimeUnit.MINUTES);
-        // 将随机生成的uuid作为sessionId传回前端
-        Map<String,String> map = new HashMap<>();
-        map.put("sessionId",uuid);
-        log.info("sessionId==>{}",uuid);
+        String res = HttpUtil.get(replaceUrl);
+        log.info("调用微信接口返回的值 ==> {}", res);
+
+        String uuid = UUID.randomUUID().toString();
+        redisTemplate.opsForValue().set(RedisKey.WX_SESSION_ID + uuid, res, 30, TimeUnit.MINUTES);
+
+        Map<String, String> map = new HashMap<>();
+        map.put("sessionId", uuid);
+        log.info("sessionId ==> {}", uuid);
         return Result.success("session获取成功",map);
     }
 
@@ -183,15 +193,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
          */
 
         try {
-//            String json = wxService.WxDecrypt(wxAuth.getEncryptedData(),wxAuth.getIv(),wxAuth.getSessionId());
-//            WxUserInfo wxUserInfo = JSON.parseObject(json, WxUserInfo.class);
-//            String openId = wxUserInfo.getOpenid();
-//            User user = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getOpenid, openId).last("limit 1"));
-//            UserVO uservo = new UserVO();
-//            uservo.from(wxUserInfo);
-
-
-
             // 三个参数，
             String wxRes = wxService.WxDecrypt(wxAuth.getEncryptedData(),wxAuth.getIv(),wxAuth.getSessionId());
             WxUserInfo wxUserInfo = JSON.parseObject(wxRes, WxUserInfo.class);
@@ -205,14 +206,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             uservo.from(wxUserInfo);
             // 从数据库查询此用户是否存在
             User user = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getOpenid, openid));
-            if (user == null){ // 不存在：
+            if (user == null) { // 不存在：
                 // 注册
-                return this.register(uservo);
-            }else { // 存在：
-                uservo.setId(user.getId());
-                // 登录
-                return this.login(uservo);
+                this.register(uservo);
             }
+            User userInfo = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getOpenid, openid));
+            uservo.setId(userInfo.getId());
+            // 登录
+            return this.login(uservo);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -246,5 +247,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 删除此 key
         redisTemplate.delete(key);
         return Result.success("登出成功！");
+    }
+
+
+    @Override
+    public Result updateInfo(User user) {
+        // 0. 拿到当前用户id
+        Long userId = UserThreadLocal.get().getId();
+        // 1. 组装user
+        user.setId(userId);
+        // 2. 修改
+        int i = userMapper.updateById(user);
+        if (i > 0) {
+            return Result.success("个人信息修改成功！");
+        }else {
+            return Result.fail("个人信息修改失败！请联系服务器");
+        }
     }
 }

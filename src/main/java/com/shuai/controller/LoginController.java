@@ -7,6 +7,7 @@ import com.shuai.service.UserService;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Slf4j
 @RestController
+@Transactional
 @RequestMapping("/login")
 public class LoginController {
 
@@ -30,7 +32,7 @@ public class LoginController {
      * @return: com.improve.shell.util.Result
      **/
     @NoAuth
-    @GetMapping("/loginByUser")
+    @PostMapping("/loginByUser")
     public Result login(@RequestBody UserVo uservo){
         log.info("传过来的uservo==>{}",uservo);
         return userService.loginByUser(uservo);
@@ -84,7 +86,6 @@ public class LoginController {
      * @param refresh
      * @return 用户微信基本信息 + token
      */
-    @NoAuth
     @GetMapping("/userInfo")
     public Result userinfo(@RequestParam("refresh") boolean refresh){
         return userService.userinfo(refresh);

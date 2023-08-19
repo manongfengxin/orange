@@ -5,8 +5,9 @@ import com.shuai.common.Constants;
 import com.shuai.controller.ChatEndpoint;
 import com.shuai.handler.UserThreadLocal;
 import com.shuai.mapper.*;
-import com.shuai.pojo.bo.Inform;
+import com.shuai.pojo.po.Inform;
 import com.shuai.pojo.po.*;
+import com.shuai.pojo.vo.InformVo;
 import com.shuai.service.LikeService;
 import com.shuai.util.Result;
 import com.shuai.util.TimeUtil;
@@ -24,6 +25,9 @@ import java.util.Objects;
 @Service
 @Transactional
 public class LikeServiceImpl implements LikeService {
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Autowired
     private PostLikeMapper postLikeMapper;
@@ -49,8 +53,9 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public Result likePost(String postId) {
-        // 0. 拿到当前用户id
+        // 0. 拿到当前用户id 并查询到 昵称头像
         Long userId = UserThreadLocal.get().getId();
+        User userInfo = userMapper.getBriefInfo(userId);
         // 1. 通过 postId 查询对应帖子 并 确实帖子是否存在
         Post post = postMapper.selectById(postId);
         if (Objects.equals(post,null)) {
@@ -70,9 +75,20 @@ public class LikeServiceImpl implements LikeService {
             int insert = postLikeMapper.insert(postLike);
             if (insert > 0){
                 // 4. 通知帖子作者，有人点赞了他的帖子
-                ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-                        new Inform(userId,post.getAuthorId(),postId,null,
-                        post.getPostFirstPicture(), Constants.LIKE_POST));
+                // 4.1 组装信息(id, fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                InformVo informVo = new InformVo(
+                        userId,
+                        userInfo.getNickname(),
+                        userInfo.getAvatar(),
+                        post.getAuthorId(),
+                        postId,
+                        null,
+                        post.getPostFirstPicture(),
+                        Constants.LIKE_POST,
+                        TimeUtil.getNowTime()
+                );
+                // 4.2 调用 websocket 发送消息
+                ChatEndpoint.sendInfo(informVo);
                 return Result.success("点赞帖子成功！");
             }else {
                 return Result.fail("点赞帖子失败，联系后台");
@@ -85,9 +101,20 @@ public class LikeServiceImpl implements LikeService {
                 postLikeInfo.setLikeTime(TimeUtil.getNowTime());
                 postLikeMapper.updateById(postLikeInfo);
                 // 4. 通知帖子作者，有人点赞了他的帖子
-                ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-                        new Inform(userId,post.getAuthorId(),postId,null,
-                        post.getPostFirstPicture(), Constants.LIKE_POST));
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                InformVo informVo = new InformVo(
+                        userId,
+                        userInfo.getNickname(),
+                        userInfo.getAvatar(),
+                        post.getAuthorId(),
+                        postId,
+                        null,
+                        post.getPostFirstPicture(),
+                        Constants.LIKE_POST,
+                        TimeUtil.getNowTime()
+                );
+                // 4.2 调用 websocket 发送消息
+                ChatEndpoint.sendInfo(informVo);
                 return Result.success("点赞帖子成功！");
             }else {
                 postLikeInfo.setDeleted(1);
@@ -99,8 +126,9 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public Result likeComment(String commentId) {
-        // 0. 拿到当前用户id
+        // 0. 拿到当前用户id 并查询到 昵称头像
         Long userId = UserThreadLocal.get().getId();
+        User userInfo = userMapper.getBriefInfo(userId);
         // 1. 通过 commentId 查询对应评论 并 确实评论是否存在
         Comment comment = commentMapper.selectById(commentId);
         if (Objects.equals(comment,null)) {
@@ -122,9 +150,20 @@ public class LikeServiceImpl implements LikeService {
             int insert = commentLikeMapper.insert(commentLike);
             if (insert > 0){
                 // 4. 通知评论发布者，有人点赞了他的评论
-                ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-                        new Inform(userId,comment.getUserId(),comment.getPostId(),commentId,
-                                post.getPostFirstPicture(), Constants.LIKE_COMMENT));
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                InformVo informVo = new InformVo(
+                        userId,
+                        userInfo.getNickname(),
+                        userInfo.getAvatar(),
+                        comment.getUserId(),
+                        comment.getPostId(),
+                        commentId,
+                        post.getPostFirstPicture(),
+                        Constants.LIKE_COMMENT,
+                        TimeUtil.getNowTime()
+                );
+                // 4.2 调用 websocket 发送消息
+                ChatEndpoint.sendInfo(informVo);
                 return Result.success("点赞评论成功！");
             }else {
                 return Result.fail("点赞评论失败，联系后台");
@@ -137,9 +176,20 @@ public class LikeServiceImpl implements LikeService {
                 commentLikeInfo.setLikeTime(TimeUtil.getNowTime());
                 commentLikeMapper.updateById(commentLikeInfo);
                 // 4. 通知评论发布者，有人点赞了他的评论
-                ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-                        new Inform(userId,comment.getUserId(),comment.getPostId(),commentId,
-                                post.getPostFirstPicture(), Constants.LIKE_COMMENT));
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                InformVo informVo = new InformVo(
+                        userId,
+                        userInfo.getNickname(),
+                        userInfo.getAvatar(),
+                        comment.getUserId(),
+                        comment.getPostId(),
+                        commentId,
+                        post.getPostFirstPicture(),
+                        Constants.LIKE_COMMENT,
+                        TimeUtil.getNowTime()
+                );
+                // 4.2 调用 websocket 发送消息
+                ChatEndpoint.sendInfo(informVo);
                 return Result.success("点赞评论成功！");
             }else {
                 commentLikeInfo.setDeleted(1);
@@ -151,8 +201,9 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public Result likeReview(String reviewId) {
-        // 0. 拿到当前用户id
+        // 0. 拿到当前用户id 并查询到 昵称头像
         Long userId = UserThreadLocal.get().getId();
+        User userInfo = userMapper.getBriefInfo(userId);
         // 1. 通过 reviewId 查询对应评价 并 确实商品评价是否存在
         Review review = reviewMapper.selectById(reviewId);
         if (Objects.equals(review,null)) {
@@ -174,9 +225,20 @@ public class LikeServiceImpl implements LikeService {
             int insert = reviewLikeMapper.insert(reviewLike);
             if (insert > 0){
                 // 4. 通知评价发布者，有人点赞了他的评价
-                ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-                        new Inform(userId,review.getUserId(),review.getGoodId(),reviewId,
-                                good.getGoodFirstPicture(), Constants.LIKE_REVIEW));
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                InformVo informVo = new InformVo(
+                        userId,
+                        userInfo.getNickname(),
+                        userInfo.getAvatar(),
+                        review.getUserId(),
+                        review.getGoodId(),
+                        reviewId,
+                        good.getGoodFirstPicture(),
+                        Constants.LIKE_REVIEW,
+                        TimeUtil.getNowTime()
+                );
+                // 4.2 调用 websocket 发送消息
+                ChatEndpoint.sendInfo(informVo);
                 return Result.success("点赞商品评价成功！");
             }else {
                 return Result.fail("点赞商品评价失败，联系后台");
@@ -189,9 +251,20 @@ public class LikeServiceImpl implements LikeService {
                 reviewLikeInfo.setLikeTime(TimeUtil.getNowTime());
                 reviewLikeMapper.updateById(reviewLikeInfo);
                 // 4. 通知评价发布者，有人点赞了他的评价
-                ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-                        new Inform(userId,review.getUserId(),review.getGoodId(),reviewId,
-                                good.getGoodFirstPicture(), Constants.LIKE_REVIEW));
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                InformVo informVo = new InformVo(
+                        userId,
+                        userInfo.getNickname(),
+                        userInfo.getAvatar(),
+                        review.getUserId(),
+                        review.getGoodId(),
+                        reviewId,
+                        good.getGoodFirstPicture(),
+                        Constants.LIKE_REVIEW,
+                        TimeUtil.getNowTime()
+                );
+                // 4.2 调用 websocket 发送消息
+                ChatEndpoint.sendInfo(informVo);
                 return Result.success("点赞商品评价成功！");
             }else {
                 reviewLikeInfo.setDeleted(1);

@@ -24,6 +24,9 @@ public class Review {
     // 星级
     private Integer star;
 
+    // 评价等级
+    private String starLevel;
+
     // 评论内容
     private String content;
 

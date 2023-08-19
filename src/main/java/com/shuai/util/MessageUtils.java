@@ -10,11 +10,11 @@ import com.shuai.pojo.vo.ResultMessage;
  */
 public class MessageUtils {
 
-    public static String getMessage(boolean isSystemMessage, Long fromId, Object message) {
+    public static String getMessage(String informType, Long fromId, Object message) {
         try {
             // 1.对系统给客户端发送消息的数据进行封装
             ResultMessage resultMessage = new ResultMessage();
-            resultMessage.setSystem(isSystemMessage);
+            resultMessage.setInformType(informType);
             resultMessage.setMessage(message);
             if (fromId != null) {
                 resultMessage.setFromId(fromId);

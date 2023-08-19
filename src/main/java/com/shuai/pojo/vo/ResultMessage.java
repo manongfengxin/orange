@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ResultMessage {
 
-    // 是否为系统消息
-    private boolean isSystem;
+    // 消息类型
+    private String informType;
 
     // 发送者id
     private Long fromId;

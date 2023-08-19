@@ -24,9 +24,11 @@ spring:
 
 project:
   # 分页查询
-  pageSize: 2
+  pageSize: 5
   # MD5加密的盐
   salt: shuai
+  # 搜索记录保存条数
+  searchSize: 10
 
 # 设置 Mp（MyBatis-Plus）相关的配置
 mybatis-plus:
@@ -44,16 +46,18 @@ mybatis-plus:
 
 
 # 配置 七牛云 密钥
-qiniu:          # 下面需要重新配置
-  accessKey: 1OD1LBpG_wd1bVREehVoqCecNLnUnu_Dm454dU8L
-  secretKey: FxX3fqF3dYppJVmgg0PAXPIpVlMNIOeIoTmoDAw5
-  # 桶：就是七牛云上的空间
-  bucket: shuai-shell
+qiniu:
+  accessKey: ur0mNrwWO_MNZ-AWLucpcjQAO0J34Osyx4q8Z_Mb
+  secretKey: bQis5IS2t9XTvgl9Ukc8c4vucSS3Srr0hCi_vZ0-
+  # 桶：就是七牛云上的空间  # 下面需要重新配置
+  bucket: shuai-orange
+
 
 # 微信小程序配置
 weixin:
-  # 密钥
-  #  appid: wx3cb31583481cd5c8
-  #  secret: ce8401ddc086439214924ec4b968b6f5
-  appid: wx5df81eb4d30427f5
-  secret: 6a7af2de711921bf41095dbf192adff2
+  # 密钥 付：
+  appid: wx3cb31583481cd5c8
+  secret: 818a8bcdc4d697f029e6972b8fba4504
+  # 密钥 杜：
+#  appid: wx5df81eb4d30427f5
+#  secret: 6a7af2de711921bf41095dbf192adff2

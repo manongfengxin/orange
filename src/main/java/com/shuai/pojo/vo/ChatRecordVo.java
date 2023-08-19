@@ -6,23 +6,36 @@ import lombok.NoArgsConstructor;
 
 /**
  * @Author: fengxin
- * @CreateTime: 2023-04-20  20:54
- * @Description: 浏览器发送给服务器的 websocket数据
+ * @CreateTime: 2023-08-15  16:20
+ * @Description: 传给前端的聊天记录数据
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ChatRecordVo {
 
-    // 来自from用户发来的信息
-    private Long fromId;
+    // 发送者id
+    private Long senderId;
 
-    // 发送给指定toId的用户对象
-    private Long toId;
+    // 接收者id
+    private Long receiverId;
+
+    // 消息类型
+    private String messageType;
 
     // 消息内容
     private String content;
 
-    // 消息类型
-    private String messageType;
+    // 发送时间
+    private String sendTime;
+
+
+    // 聊天对象 id
+    private Long toId;
+
+    // 聊天对象的昵称
+    private String toNickname;
+
+    // 聊天对象的头像
+    private String toAvatar;
 }

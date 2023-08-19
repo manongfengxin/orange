@@ -32,7 +32,15 @@ public class Good {
     // 商品类型
     private String goodType;
 
+    // 操作员id
+    private Long operatorId;
+
     // 商品销量
     private Integer goodSales;
+
+    // 上架时间
+    private String createTime;
+
+
 
 }

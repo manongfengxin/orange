@@ -10,6 +10,7 @@ import com.shuai.service.FootprintService;
 import com.shuai.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ import java.util.List;
  * @Description: TODO
  */
 @Service
+@Transactional
 public class FootprintServiceImpl extends ServiceImpl<FootprintMapper,Footprint> implements FootprintService {
 
     @Autowired

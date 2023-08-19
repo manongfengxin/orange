@@ -30,5 +30,8 @@ public interface PostService extends IService<Post> {
     PostVo brief(String postId);
 
     // 获取我的帖子列表
-    Result getMyPostList();
+    Result getMyPostList(Long otherId);
+
+    // 删除指定帖子
+    Result delete(String postId);
 }

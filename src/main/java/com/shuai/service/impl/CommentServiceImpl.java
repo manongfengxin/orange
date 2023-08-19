@@ -7,11 +7,14 @@ import com.shuai.handler.UserThreadLocal;
 import com.shuai.mapper.CommentLikeMapper;
 import com.shuai.mapper.CommentMapper;
 import com.shuai.mapper.PostMapper;
-import com.shuai.pojo.bo.Inform;
+import com.shuai.mapper.UserMapper;
+import com.shuai.pojo.po.Inform;
 import com.shuai.pojo.po.Comment;
 import com.shuai.pojo.po.CommentLike;
 import com.shuai.pojo.po.Post;
+import com.shuai.pojo.po.User;
 import com.shuai.pojo.vo.CommentVo;
+import com.shuai.pojo.vo.InformVo;
 import com.shuai.service.CommentService;
 import com.shuai.util.Result;
 import com.shuai.util.TimeUtil;
@@ -44,16 +47,21 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private PostMapper postMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
     public Result makeComment(Comment comment) {
         /* 查询一下对应 post */
         Post post = postMapper.selectById(comment.getPostId());
-        // 0. 拿到当前用户id，即评论者
+        // 0. 拿到当前用户id，即评论者 再拿到昵称头像
         Long userId = UserThreadLocal.get().getId();
+        User userInfo = userMapper.getBriefInfo(userId);
         // 1. 设置为评论者
         comment.setUserId(userId);
         // 2. 拼接评论id（评论时间+用户id）
-        comment.setId(TimeUtil.getNowTimeString() + userId);
+        String commentId = TimeUtil.getNowTimeString() + userId;
+        comment.setId(commentId);
         // 3. 拿到评论时间并设置
         comment.setCreateTime(TimeUtil.getNowTime());
         // 4. 向数据库插入数据
@@ -62,21 +70,43 @@ public class CommentServiceImpl implements CommentService {
             // 5. 判断 comment.parentId 是否为 null,进行通知
             String parentId = comment.getParentId();
             if (!Objects.equals(parentId,null)) {
+                // 5.0 通过父评论id 查询到父评论
                 Comment commentInfo = commentMapper.selectById(parentId);
                 // 5.1 通知父评论的发布者，有人回复了他的评论
-                ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-                        new Inform(userId,commentInfo.getUserId(),comment.getPostId(),commentInfo.getId(),
-                                post.getPostFirstPicture(), Constants.REPLY_COMMENT + comment.getContent()));
+                // 5.1.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                InformVo informVo = new InformVo(
+                        userId,
+                        userInfo.getNickname(),
+                        userInfo.getAvatar(),
+                        post.getAuthorId(),
+                        comment.getPostId(),
+                        commentInfo.getId(),
+                        post.getPostFirstPicture(),
+                        Constants.REPLY_COMMENT + comment.getContent(),
+                        TimeUtil.getNowTime()
+                );
+                // 5.1.2 调用 websocket 发送消息
+                ChatEndpoint.sendInfo(informVo);
             }
             // 5.2 通知帖子的发布者，有人评论了他的帖子
-            ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-                    new Inform(userId,post.getAuthorId(),comment.getPostId(),comment.getId(),
-                            post.getPostFirstPicture(), Constants.COMMENT_POST));
+            // 5.1.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+            InformVo informVo = new InformVo(
+                    userId,
+                    userInfo.getNickname(),
+                    userInfo.getAvatar(),
+                    post.getAuthorId(),
+                    comment.getPostId(),
+                    commentId,
+                    post.getPostFirstPicture(),
+                    Constants.COMMENT_POST,
+                    TimeUtil.getNowTime()
+            );
+            // 5.1.2 调用 websocket 发送消息
+            ChatEndpoint.sendInfo(informVo);
             return Result.success("评论发布成功！");
         }else {
             return Result.fail("评论发布失败！请联系服务器");
         }
-
     }
 
     @Override
@@ -92,6 +122,8 @@ public class CommentServiceImpl implements CommentService {
         if (!Objects.equals(userId,comment.getUserId())) {
             return Result.fail("删除失败！只有自己才能删除自己的评论");
         }
+        // 3. 删除该评论及其子评论的点赞记录
+        commentLikeMapper.deleteByCommentId(commentId);
         // 3. 删除此条评论及其子评论
         int delete = commentMapper.deleteComment(commentId);
         if (delete > 0) {
@@ -124,7 +156,11 @@ public class CommentServiceImpl implements CommentService {
                             .eq(CommentLike::getCommentId, comment.getId())
                             .eq(CommentLike::getDeleted,0));
             commentVo.setLikes(likes);
-            // 2.3 拼接返回值，加入集合中
+            // 2.3 查询评论的发表人的userId，nickname，avatar
+            User user = userMapper.getBriefInfo(comment.getUserId());
+            commentVo.setNickname(user.getNickname());
+            commentVo.setAvatar(user.getAvatar());
+            // 2.4 拼接返回值，加入集合中
             commentVoList.add(commentVo);
         }
         return commentVoList;

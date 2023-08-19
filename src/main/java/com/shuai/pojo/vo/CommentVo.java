@@ -39,4 +39,11 @@ public class CommentVo {
     // 是否是自己的评论
     private boolean own;
 
+    // 昵称
+    private String nickname;
+
+    // 头像
+    private String avatar;
+
+
 }
