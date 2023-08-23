@@ -8,6 +8,7 @@ import com.shuai.pojo.vo.GoodVo;
 import com.shuai.util.Result;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @Author: fengxin
@@ -23,7 +24,7 @@ public interface GoodService extends IService<Good> {
     Result put(GoodVo goodVo);
 
     // 推荐列表
-    Result recommendationList();
+    IPage<Good> recommendationList(List<String> searchHistory,Page<Good> page);
 
     // 商城搜索框搜索
     IPage<Good> search(String keyword, Integer price, Integer sales, Page<Good> page);
@@ -34,6 +35,6 @@ public interface GoodService extends IService<Good> {
     // 下架商品
     Result deleteGood(String goodId);
 
-//    // 商城首页销量
-//    IPage<Good> sales(Page<Good> page);
+    // 商城首页销量
+    IPage<Good> sales(Page<Good> page);
 }

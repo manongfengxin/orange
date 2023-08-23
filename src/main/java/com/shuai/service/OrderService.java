@@ -1,7 +1,9 @@
 package com.shuai.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.shuai.pojo.po.Order;
+import com.shuai.util.Result;
 
 /**
  * @Author: fengxin
@@ -10,4 +12,6 @@ import com.shuai.pojo.po.Order;
  */
 public interface OrderService extends IService<Order> {
 
+    // 获取我的订单列表
+    Result orderList(Page<Order> page);
 }

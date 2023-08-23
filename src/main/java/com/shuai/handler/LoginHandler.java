@@ -16,6 +16,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.Enumeration;
 
 //将拦截器放入mvc配置中
 @Slf4j
@@ -42,8 +44,16 @@ public class LoginHandler implements HandlerInterceptor {
 
         log.info("请求路径：{}",request.getRequestURL());
         log.info("请求时间：{}", TimeUtil.getNowTime());
-        log.info("request==>{}",request);
         log.info("handler==>{}",handler);
+        log.info("请求类型：{}",request.getMethod());
+
+        Enumeration<String> paramNames = request.getParameterNames();
+        while (paramNames.hasMoreElements()) {
+            String paramName = paramNames.nextElement();
+            // 处理每个参数的逻辑：拿到参数值、打印
+            String[] parameterValues = request.getParameterValues(paramName);
+            System.out.println("" + paramName + " = " + Arrays.toString(parameterValues));
+        }
         log.info("token==>{}",request.getHeader("Authorization"));
 
         if (!(handler instanceof HandlerMethod)){//如果不是访问的controller方法就直接放行

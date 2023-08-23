@@ -55,7 +55,7 @@ public class LikeServiceImpl implements LikeService {
     public Result likePost(String postId) {
         // 0. 拿到当前用户id 并查询到 昵称头像
         Long userId = UserThreadLocal.get().getId();
-        User userInfo = userMapper.getBriefInfo(userId);
+        User userInfo = userMapper.selectById(userId);
         // 1. 通过 postId 查询对应帖子 并 确实帖子是否存在
         Post post = postMapper.selectById(postId);
         if (Objects.equals(post,null)) {
@@ -128,7 +128,7 @@ public class LikeServiceImpl implements LikeService {
     public Result likeComment(String commentId) {
         // 0. 拿到当前用户id 并查询到 昵称头像
         Long userId = UserThreadLocal.get().getId();
-        User userInfo = userMapper.getBriefInfo(userId);
+        User userInfo = userMapper.selectById(userId);
         // 1. 通过 commentId 查询对应评论 并 确实评论是否存在
         Comment comment = commentMapper.selectById(commentId);
         if (Objects.equals(comment,null)) {
@@ -203,7 +203,7 @@ public class LikeServiceImpl implements LikeService {
     public Result likeReview(String reviewId) {
         // 0. 拿到当前用户id 并查询到 昵称头像
         Long userId = UserThreadLocal.get().getId();
-        User userInfo = userMapper.getBriefInfo(userId);
+        User userInfo = userMapper.selectById(userId);
         // 1. 通过 reviewId 查询对应评价 并 确实商品评价是否存在
         Review review = reviewMapper.selectById(reviewId);
         if (Objects.equals(review,null)) {

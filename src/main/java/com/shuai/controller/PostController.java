@@ -3,6 +3,7 @@ package com.shuai.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.shuai.common.RedisKey;
 import com.shuai.handler.UserThreadLocal;
 import com.shuai.pojo.po.Footprint;
 import com.shuai.pojo.po.Post;
@@ -12,6 +13,7 @@ import com.shuai.pojo.vo.UserVo;
 import com.shuai.service.CommentService;
 import com.shuai.service.FootprintService;
 import com.shuai.service.PostService;
+import com.shuai.service.SearchHistoryService;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author: fengxin
@@ -45,6 +48,9 @@ public class PostController {
 
     @Autowired
     private CommentService commentService;
+    
+    @Autowired
+    private SearchHistoryService searchHistoryService;
 
 
     /**
@@ -98,7 +104,14 @@ public class PostController {
     public Result hottestList(@RequestParam(defaultValue = "",name = "title")String title,
                               @RequestParam(defaultValue = "1", name = "current") Integer current) {
         log.info("current==>{}",current);
+        // 1. 获取最热帖子列表
         IPage<PostVo> page = postService.hottestList(title, new Page<Post>(current, Long.parseLong(pageSize)));
+        // 2. 如果 title 不为 ”“ ，存入搜索记录（redis）
+        if (!Objects.equals(title,"")) {
+            Long userId = UserThreadLocal.get().getId();
+            Boolean aBoolean = searchHistoryService.addSearchHistory(RedisKey.POST_SEARCH + userId, title);
+            if (!aBoolean) return Result.fail("Redis出现异常，联系后台");
+        }
         return Result.success("最热帖子列表",page);
     }
 
@@ -114,7 +127,14 @@ public class PostController {
     public Result latestList(@RequestParam(defaultValue = "",name = "title")String title,
                              @RequestParam(defaultValue = "1", name = "current") Integer current) {
         log.info("current==>{}",current);
+        // 1. 获取最新帖子列表
         IPage<PostVo> page = postService.latestList(title, new Page<>(current, Long.parseLong(pageSize)));
+        // 2. 如果 title 不为 ”“ ，存入搜索记录（redis）
+        if (!Objects.equals(title,"")) {
+            Long userId = UserThreadLocal.get().getId();
+            Boolean aBoolean = searchHistoryService.addSearchHistory(RedisKey.POST_SEARCH + userId, title);
+            if (!aBoolean) return Result.fail("Redis出现异常，联系后台");
+        }
         return Result.success("最新帖子列表",page);
     }
 

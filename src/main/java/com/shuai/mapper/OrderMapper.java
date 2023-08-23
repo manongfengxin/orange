@@ -1,6 +1,5 @@
 package com.shuai.mapper;
 
-import com.alipay.easysdk.factory.Factory;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shuai.pojo.po.Order;
 import org.apache.ibatis.annotations.Mapper;

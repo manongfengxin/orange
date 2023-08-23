@@ -1,24 +1,19 @@
 package com.shuai.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.shuai.common.Constants;
-import com.shuai.common.RedisKey;
 import com.shuai.handler.UserThreadLocal;
 import com.shuai.mapper.*;
 import com.shuai.pojo.po.*;
 import com.shuai.pojo.vo.GoodVo;
-import com.shuai.pojo.vo.PostVo;
+import com.shuai.service.CollectService;
 import com.shuai.service.GoodService;
 import com.shuai.util.Result;
 import com.shuai.util.TimeUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,12 +30,6 @@ import java.util.Objects;
 @Service
 @Transactional
 public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements GoodService {
-
-//    @Value("${project.searchSize}")
-//    private int searchSize;
-//
-//    @Autowired
-//    private RedisTemplate redisTemplate;
 
     @Autowired
     private GoodMapper goodMapper;
@@ -59,6 +48,9 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
 
     @Autowired
     private ReviewMapper reviewMapper;
+
+    @Autowired
+    private CollectService collectService;
 
 
     @Override
@@ -126,10 +118,20 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
 
 
     @Override
-    public Result recommendationList() {
-
-
-        return null;
+    public IPage<Good> recommendationList(List<String> searchHistory,Page<Good> page) {
+        // 1. 分页查询商品列表(按关键词=》用户历史搜索记录  搜索)
+        LambdaQueryWrapper<Good> queryWrapper = new LambdaQueryWrapper<>();
+        // 2. 构建条件
+        for (String keyword :searchHistory) {
+            queryWrapper.like(Good::getGoodName,keyword).or().like(Good::getGoodDescription,keyword);
+        }
+        // 3. 查询数据库
+        Page<Good> goodPage = goodMapper.selectPage(page, queryWrapper);
+        // 4. 如果没有搜索到任何商品，则 => 所有商品列表
+        if (Objects.equals(goodPage.getRecords(),null)) {
+            goodPage = goodMapper.selectPage(page, null);
+        }
+        return goodPage;
     }
 
     @Override
@@ -149,50 +151,14 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
             queryWrapper.orderByDesc(Good::getGoodSales);
         }
         // 1.4 查询 并 返回
-        Page<Good> goodPage = goodMapper.selectPage(page, queryWrapper);
-
-//        Long userId = UserThreadLocal.get().getId();
-//        // 把用户ID当key，搜索内容当value 存入 Redis
-//        redisTemplate.opsForZSet().add(RedisKey.GOOD_SEARCH + userId, keyword, System.currentTimeMillis());
-//        // 调用下面的方法对存入Redis的数据进行处理
-//        insertSearchSort(RedisKey.GOOD_SEARCH + userId,keyword);
-
-        return goodPage;
+        return goodMapper.selectPage(page, queryWrapper);
     }
 
-
-
-//    /**
-//     * 对传进来的搜索内容进行判断
-//     * @param key
-//     * @param value
-//     */
-//    private void insertSearchSort(String key,String value){
-//        //阈值-历史最多 10 个
-//        long top  = searchSize;
-//        // 拿到存入Redis里数据的唯一分值
-//        Double score = redisTemplate.opsForZSet().score(key, value);
-//        //检索是否有旧记录  1.无则插入记录值  2.有则删除 再次插入
-//        if(null != score){
-//            //删除旧的
-//            redisTemplate.opsForZSet().remove(key,value);
-//        }
-//        //加入新的记录，设置当前时间戳为分数score
-//        redisTemplate.opsForZSet().add(key,value,System.currentTimeMillis());
-//        //获取总记录数
-//        Long aLong = redisTemplate.opsForZSet().zCard(key);
-//        if(aLong > top){
-//            //获取阈值200之后的记录  (0,1] 并移除
-//            redisTemplate.opsForZSet().removeRange(key,0,aLong-top-1);
-//        }
-//    }
-
-//
-//    @Override
-//    public IPage<Good> sales(Page<Good> page) {
-//        // 1. 分页查询商品列表(按销量)
-//        return goodMapper.selectPage(page, new LambdaQueryWrapper<Good>().orderByDesc(Good::getGoodSales));
-//    }
+    @Override
+    public IPage<Good> sales(Page<Good> page) {
+        // 1. 分页查询商品列表(按销量)
+        return goodMapper.selectPage(page, new LambdaQueryWrapper<Good>().orderByDesc(Good::getGoodSales));
+    }
 
 
     @Override

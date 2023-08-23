@@ -3,19 +3,29 @@ package com.shuai.config;
 import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.kernel.Config;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "alipay")
+@PropertySource(value = "classpath:application.yml")
 public class AliPayConfig {
 
+    @Value("${alipay.appId}")
     private String appId;
+
+    @Value("${alipay.appPrivateKey}")
     private String appPrivateKey;
+
+    @Value("${alipay.alipayPublicKey}")
     private String alipayPublicKey;
+
+    @Value("${alipay.notifyUrl}")
     private String notifyUrl;
 
 

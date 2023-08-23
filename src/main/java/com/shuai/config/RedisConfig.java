@@ -49,4 +49,24 @@ public class RedisConfig {
         return template;
     }
 
+    @Bean(name = "SearchRedisTemplate")
+    public static RedisTemplate<String, String> createRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        //初始化redis模板
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+        //设置Redis的连接信息
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+        // 设置key和value的序列化方式为StringRedisSerializer
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+
+        // 设置hash key和value的序列化方式为StringRedisSerializer
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+
+        // 初始化RedisTemplate
+        redisTemplate.afterPropertiesSet();
+
+        return redisTemplate;
+    }
 }

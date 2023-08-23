@@ -5,10 +5,7 @@ import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Author: fengxin
@@ -32,7 +29,7 @@ public class CollectController {
      * @param: [postId]
      * @return: 是否成功
      **/
-    @PostMapping("/post")
+    @PutMapping("/post")
     public Result collectPost(@RequestParam("postId")String postId) {
         return collectService.collectPost(postId);
     }
@@ -44,7 +41,7 @@ public class CollectController {
      * @param: [goodId]
      * @return: 是否成功
      **/
-    @PostMapping("/good")
+    @PutMapping("/good")
     public Result collectGood(@RequestParam("goodId")String goodId) {
         return collectService.collectGood(goodId);
     }

@@ -1,28 +1,35 @@
-package com.shuai.pojo.po;
+package com.shuai.pojo.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
-/**
- * @Author: fengxin
- * @CreateTime: 2023-08-04  12:14
- * @Description: 订单表
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("`order`")
-public class Order {
+public class OrderVo {
 
     // 主键（用户id + 时间）
-    private String id;
+    private String orderId;
 
     // 商品id
     private String goodId;
+
+
+
+    // 商品标题
+    private String goodName;
+
+    // 商品描述
+    private String goodDescription;
+
+    // 商品单价
+    private float goodPrice;
+
+    // 商品首图
+    private String goodFirstPicture;
+
+
 
     // 商品数量
     private Integer goodNumber;
@@ -38,6 +45,5 @@ public class Order {
 
     // 订单付款时间
     private String payTime;
-
 
 }

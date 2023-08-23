@@ -29,7 +29,7 @@ public class LikeController {
      * @param: [postId]
      * @return: 是否成功
      **/
-    @PostMapping("/post")
+    @PutMapping("/post")
     public Result likePost(@RequestParam("postId")String postId) {
         return likeService.likePost(postId);
     }
@@ -41,7 +41,7 @@ public class LikeController {
      * @param: [commentId]
      * @return: 是否成功
      **/
-    @PostMapping("/comment")
+    @PutMapping("/comment")
     public Result likeComment(@RequestParam("commentId")String commentId) {
         return likeService.likeComment(commentId);
     }
@@ -54,7 +54,7 @@ public class LikeController {
      * @param: [reviewId]
      * @return: 是否成功
      **/
-    @PostMapping("/review")
+    @PutMapping("/review")
     public Result likeReview(@RequestParam("reviewId")String reviewId) {
         return likeService.likeReview(reviewId);
     }
