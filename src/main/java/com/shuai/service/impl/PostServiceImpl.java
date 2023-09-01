@@ -119,7 +119,10 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         post.setId(postId);
         post.setAuthorId(userId);
         post.setPostReleaseTime(TimeUtil.getNowTime());
-        post.setPostFirstPicture(postVo.getImages().get(0));
+        // 注意：判断图集是否为空
+        if (!Objects.equals(postVo.getImages(),null)) {
+            post.setPostFirstPicture(postVo.getImages().get(0));
+        }
         log.info("查看帖子数据post：{}",post);
         return post;
     }

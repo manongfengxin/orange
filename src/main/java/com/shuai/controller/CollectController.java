@@ -1,5 +1,7 @@
 package com.shuai.controller;
 
+import com.shuai.pojo.vo.GoodVo;
+import com.shuai.pojo.vo.PostVo;
 import com.shuai.service.CollectService;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +32,9 @@ public class CollectController {
      * @return: 是否成功
      **/
     @PutMapping("/post")
-    public Result collectPost(@RequestParam("postId")String postId) {
-        return collectService.collectPost(postId);
+    public Result collectPost(@RequestBody PostVo postVo) {
+        log.info("传参：{}",postVo);
+        return collectService.collectPost(postVo.getPostId());
     }
 
     /**
@@ -42,8 +45,9 @@ public class CollectController {
      * @return: 是否成功
      **/
     @PutMapping("/good")
-    public Result collectGood(@RequestParam("goodId")String goodId) {
-        return collectService.collectGood(goodId);
+    public Result collectGood(@RequestBody GoodVo goodVo) {
+        log.info("传参：{}",goodVo);
+        return collectService.collectGood(goodVo.getGoodId());
     }
 
 }

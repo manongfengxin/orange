@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Objects;
 
 //将拦截器放入mvc配置中
 @Slf4j
@@ -25,7 +26,7 @@ import java.util.Enumeration;
 public class LoginHandler implements HandlerInterceptor {
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String,Object> redisTemplate;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -67,18 +68,22 @@ public class LoginHandler implements HandlerInterceptor {
         }
 
         String token = request.getHeader("Authorization");
-        log.info("token==>{}",token);
-        token = token.replace("Bearer","");
+        if (Objects.equals(token,null)) {
+            response.setContentType("application/json;charset=utf-8");
+            response.getWriter().write(JSON.toJSONString(Result.fail("token为 null")));
+        }
+//        log.info("token==>{}",token);
+//        token = token.replace("Bearer","");
         boolean verify = JwtUtil.verify(token);
         if (!verify){
             response.setContentType("application/json;charset=utf-8");
-            response.getWriter().write(JSON.toJSONString(Result.fail("未登录")));
+            response.getWriter().write(JSON.toJSONString(Result.fail("token已过期!请重新登录")));
             return false;
         }
         String userJson = (String) redisTemplate.opsForValue().get(RedisKey.TOKEN + token);
         if (StringUtils.isBlank(userJson)){
             response.setContentType("application/json;charset=utf-8");
-            response.getWriter().write(JSON.toJSONString(Result.fail("未登录!")));
+            response.getWriter().write(JSON.toJSONString(Result.fail("Redis缓存出错!请重新登录")));
             return false;
         }
         UserVo uservo = JSON.parseObject(userJson, UserVo.class);

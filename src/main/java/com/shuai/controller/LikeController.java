@@ -1,5 +1,9 @@
 package com.shuai.controller;
 
+import com.shuai.pojo.po.Post;
+import com.shuai.pojo.vo.CommentVo;
+import com.shuai.pojo.vo.PostVo;
+import com.shuai.pojo.vo.ReviewVo;
 import com.shuai.service.LikeService;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +34,9 @@ public class LikeController {
      * @return: 是否成功
      **/
     @PutMapping("/post")
-    public Result likePost(@RequestParam("postId")String postId) {
-        return likeService.likePost(postId);
+    public Result likePost(@RequestBody PostVo postVo) {
+        log.info("传参：{}",postVo);
+        return likeService.likePost(postVo.getPostId());
     }
 
     /**
@@ -42,8 +47,9 @@ public class LikeController {
      * @return: 是否成功
      **/
     @PutMapping("/comment")
-    public Result likeComment(@RequestParam("commentId")String commentId) {
-        return likeService.likeComment(commentId);
+    public Result likeComment(@RequestBody CommentVo commentVo) {
+        log.info("传参：{}",commentVo);
+        return likeService.likeComment(commentVo.getCommentId());
     }
 
 
@@ -55,7 +61,8 @@ public class LikeController {
      * @return: 是否成功
      **/
     @PutMapping("/review")
-    public Result likeReview(@RequestParam("reviewId")String reviewId) {
-        return likeService.likeReview(reviewId);
+    public Result likeReview(@RequestBody ReviewVo reviewVo) {
+        log.info("传参：{}",reviewVo);
+        return likeService.likeReview(reviewVo.getReviewId());
     }
 }

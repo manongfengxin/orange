@@ -139,6 +139,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         BeanUtils.copyProperties(uservo,user);
         // 获取并设置注册时间
         user.setCreateTime(TimeUtil.getNowTime());
+        // 设置默认昵称、头像
+        uservo.setNickname("昵称" + TimeUtil.getNowTimeString());
+        uservo.setAvatar("https://pic.imgdb.cn/item/64c617ea1ddac507cc683d71.webp");
         // 向数据库添加新注册的用户
         userMapper.insert(user);
         // 添加成功后通过设置uservo的id属性为数据库的id

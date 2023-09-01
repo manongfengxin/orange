@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * @Author: fengxin
@@ -35,6 +36,9 @@ public class CommentController {
     @PostMapping("/add")
     public Result makeComment(@RequestBody Comment comment) {
         log.info("传过来的comment==>{}",comment);
+        if (Objects.equals(comment.getContent(),null)) {
+            return Result.fail("评论内容不可以为null");
+        }
         return commentService.makeComment(comment);
     }
 

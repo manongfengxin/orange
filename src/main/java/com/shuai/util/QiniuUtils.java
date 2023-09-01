@@ -99,7 +99,7 @@ public class QiniuUtils {
             Response response = uploadManager.put(stream, name, uploadToken,null,null);
             //解析上传成功的结果
             DefaultPutRet putRet = new Gson().fromJson(response.bodyString(),DefaultPutRet.class);
-            log.info("文件上传成功==>{}",putRet);
+//            log.info("文件上传成功==>{}",putRet);
             return name;
         } catch (QiniuException e) {
             Response r = e.response;
