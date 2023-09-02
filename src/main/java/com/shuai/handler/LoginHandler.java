@@ -72,12 +72,12 @@ public class LoginHandler implements HandlerInterceptor {
             response.setContentType("application/json;charset=utf-8");
             response.getWriter().write(JSON.toJSONString(Result.fail("token为 null")));
         }
-//        log.info("token==>{}",token);
+        log.info("token==>{}",token);
 //        token = token.replace("Bearer","");
         boolean verify = JwtUtil.verify(token);
         if (!verify){
             response.setContentType("application/json;charset=utf-8");
-            response.getWriter().write(JSON.toJSONString(Result.fail("token已过期!请重新登录")));
+            response.getWriter().write(JSON.toJSONString(Result.fail("token不合法或已过期!请重新登录")));
             return false;
         }
         String userJson = (String) redisTemplate.opsForValue().get(RedisKey.TOKEN + token);

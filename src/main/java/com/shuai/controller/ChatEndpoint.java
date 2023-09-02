@@ -3,6 +3,7 @@ package com.shuai.controller;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.shuai.common.Constants;
+import com.shuai.mapper.InformMapper;
 import com.shuai.mapper.UserMapper;
 import com.shuai.pojo.po.Inform;
 import com.shuai.pojo.po.ChatRecord;
@@ -37,17 +38,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint("/chat/{id}")
 public class ChatEndpoint {
 
-    @Autowired
-    private UserMapper userMapper;
-
     // 用来存储每一个客户端对象对应的 ChatEndpoint 对象
     private static Map<Long, Session> onlineUsers = new ConcurrentHashMap<>();
 
     // 声明Session对象，通过该对象可以发送消息给指定的用户
     private Session session;
 
-    // 存储当前用户的登录信息
-//    private UserVO uservo;
+    // 存储当前用户的id 在 map 中做 key
     private Long id;
 
     /*
@@ -59,20 +56,17 @@ public class ChatEndpoint {
      **/
     private void sendUsers() {
         log.info("进行广播，通知所有用户，目前在线用户情况");
-
         // 1. 获取所有在线用户的id
         Set<Long> ids = onlineUsers.keySet();
-
         log.info("当前在线用户：{}",ids);
-
-        // 2.封装成系统发送给用户的消息格式
+        // 2. 封装成系统发送给用户的消息格式
         String resultMessage = MessageUtils.getMessage(Constants.SYSTEM_MESSAGE, null, ids);
-        // 3.通过遍历所有的在线用户id
+        // 3. 通过遍历所有的在线用户id
         for (Long id : ids) {
-            /**/// 获取每个在线用户的id，通过id拿到对应的ChatEndpoint对象
+            // 3.1 获取每个在线用户的id，通过id拿到对应的ChatEndpoint对象
             Session session = onlineUsers.get(id);
             try {
-                // 通过ChatEndpoint对象给对应在线用户发送系统消息
+                // 3.2 通过ChatEndpoint对象给对应在线用户发送系统消息
                 session.getBasicRemote().sendText(resultMessage);
             }catch (Exception e) {
                 e.printStackTrace();
@@ -89,18 +83,16 @@ public class ChatEndpoint {
      **/
     @OnOpen
     public void onOpen(Session session, @PathParam("id") Long id) {
-
         log.info("进入onOpen方法！");
-        // 1.将局部session对象赋值给成员session
+        // 1. 将局部session对象赋值给成员session
         this.session = session;
-        // 2.将当前用户登录信息赋值给成员uservo
-//        this.uservo = UserThreadLocal.get();
+        // 2. 将当前用户id 赋值给 成员id
         this.id = id;
-        // 3.将当前用户对象存储到容器中（通过id标识在线用户）
-        onlineUsers.put(id/*uservo.getId()*/,session);
-        // 4.将当前在线用户的id推送给所有的在线客户端
+        // 3. 将当前用户对象存储到容器中（通过id标识在线用户）
+        onlineUsers.put(id, session);
+        // 4. 将当前在线用户的id推送给所有的在线客户端
         sendUsers();
-        log.info("新用户成功建立连接，用户id：{}，当前在线人数：{}",id/*uservo.getUsername()*/,onlineUsers.size());
+        log.info("新用户成功建立连接，用户id：{}，当前在线人数：{}", id, onlineUsers.size());
     }
 
     /*
@@ -112,9 +104,13 @@ public class ChatEndpoint {
      **/
     @OnMessage
     public void onMessage(String message, Session session) {
-        log.info("进入onMessage方法，接收到用户id：{}发来信息：{}",id/*uservo.getUsername()*/,message);
+        log.info("进入onMessage方法，接收到用户id：{}发来信息：{}", id, message);
+        // 0. 通过工具类手动获取 userMapper 对象
+        UserMapper userMapper = MyBeanUtil.getBean(UserMapper.class);
+        // 0.1 获取身份信息 判断通知消息种类：用户消息/商家消息/专家消息
         User userInfo = userMapper.selectById(id);
         String role = userInfo.getRole();
+        // 默认身份：用户 -> 用户消息
         String informType = Constants.USER_MESSAGE;
         if (Objects.equals(role,"商家")) {
             informType = Constants.GOOD_MESSAGE;
@@ -123,49 +119,44 @@ public class ChatEndpoint {
         }
 
         try {
-            // 1.将局部变量message转换成JSONObject对象
+            // 1. 将局部变量message转换成JSONObject对象
             JSONObject obj = JSONUtil.parseObj(message);
-            // 2.获取接收者用户的id ,获取发送者用户的id ,消息类型 messageType
+            // 2. 获取接收者用户的id ,获取发送者用户的id ,消息类型 messageType
             Long receiverId = obj.getLong("toId");
             Long senderId = obj.getLong("fromId");
             String messageType = obj.getStr("messageType");
-            // 3.获取消息数据
+            // 3. 获取消息数据
             String content = obj.getStr("content");
-
+            // 3.1 构成 浏览器发送给服务器的数据对象
             ChatRecordBo chatRecordBo = new ChatRecordBo(senderId,receiverId,content,messageType);
             // 判断用户toId是否在线
             if (onlineUsers.containsKey(receiverId)) {
                 // 用户toId在线：
-                // 4.封装成系统发送给用户的消息格式
-                String resultMessage = MessageUtils.getMessage(informType, senderId, content);
-                // 5.服务器向指定（id）客户端发送数据
-                /**/// 5.1 获取接收消息用户id对应的ChatEndpoint对象
+                // 4. 封装成系统发送给用户的消息格式
+                String resultMessage = MessageUtils.getMessage(informType, senderId, chatRecordBo);
+                // 5. 服务器向指定（id）客户端发送数据
+                // 5.1 获取接收消息用户id对应的ChatEndpoint对象
                 Session receiverSession = onlineUsers.get(receiverId);
                 // 5.2 通过ChatEndpoint对象给对应在线用户发送系统消息
                 receiverSession.getBasicRemote().sendText(resultMessage);
             }
-            // 6.向发送者反馈发送成功
-            String returnMessage = MessageUtils.getMessage(Constants.USER_MESSAGE, null,"发送成功！");
+            // 6. 向发送者反馈发送成功
+            String returnMessage = MessageUtils.getMessage(Constants.SYSTEM_TIP, null,"发送成功！");
             Session senderSession = onlineUsers.get(senderId);
             senderSession.getBasicRemote().sendText(returnMessage);
 
-            // 将当前用户发送的消息记录到数据库
+            // 7. 将当前用户发送的消息记录到数据库
             ChatRecord chatRecord = new ChatRecord();
-            // 把chatRecordBo里的值都赋值给chatRecord
+            // 7.1 把chatRecordBo里的值都赋值给chatRecord
             BeanUtils.copyProperties(chatRecordBo,chatRecord);
-            // 获取当前时间
-            String nowTime = TimeUtil.getNowTime();
-            String cid = "" + id/*uservo.getId()*/ + nowTime + receiverId;
-            cid = cid.replace(" ","").replace("-","").replace(":","");
-            chatRecord.setId(cid);
+            // 7.2 继续赋值
+            chatRecord.setId(id + TimeUtil.getNowTimeString() + receiverId);
             chatRecord.setSenderId(senderId);
             chatRecord.setReceiverId(receiverId);
-            chatRecord.setSendTime(nowTime);
-
-            // 将该条聊天记录新增到数据库
-            // 1.通过工具类手动获取 chatRecordService 对象
+            chatRecord.setSendTime(TimeUtil.getNowTime());
+            // 7.3 通过工具类手动获取 chatRecordService 对象
             ChatRecordService chatRecordService = MyBeanUtil.getBean(ChatRecordService.class);
-            // 2.调用 chatRecordService 的sava方法，将该条数据保存到数据库
+            // 7.4 调用 chatRecordService 的sava方法，将该条数据保存到数据库
             chatRecordService.save(chatRecord);
             log.info("将这条聊天记录：{}保存到了数据库", chatRecord);
         }catch (Exception e) {
@@ -184,10 +175,9 @@ public class ChatEndpoint {
     @OnClose
     public void onClose(Session session) {
         log.info("进入onClose方法，在线用户 -1");
-
-        // 1.当前用户下线，则从在线用户中删除该用户
-        onlineUsers.remove(id/*uservo.getId()*/);
-        // 2.将新的所有在线用户通知给所有在线用户
+        // 1. 当前用户下线，则从在线用户中删除该用户
+        onlineUsers.remove(id);
+        // 2. 将新的所有在线用户通知给所有在线用户
         sendUsers();
     }
 
@@ -202,10 +192,10 @@ public class ChatEndpoint {
      **/
     @OnError
     public void onError(Session session, Throwable error) {
-        //什么都不想打印都去掉就好了
+        // 什么都不想打印都去掉就好了
         log.info(" websocket 出错啦 -_-!");
-        //打印错误信息，如果你不想打印错误信息，去掉就好了
-        //这里打印的也是  java.io.EOFException: null
+        // 打印错误信息，如果你不想打印错误信息，去掉就好了
+        // 这里打印的也是  java.io.EOFException: null
         error.printStackTrace();
     }
 
@@ -226,9 +216,9 @@ public class ChatEndpoint {
         // 3. 判断用户toId是否在线
         if (onlineUsers.containsKey(toId)) {   // 用户toId在线：
             log.info("用户toId在线");
-            // 4.封装成系统发送给用户的消息格式
+            // 4. 封装成系统发送给用户的消息格式
             String resultMessage = MessageUtils.getMessage(Constants.SYSTEM_MESSAGE, fromId, informVo);
-            // 5.服务器向指定（id）客户端发送数据
+            // 5. 服务器向指定（id）客户端发送数据
             // 5.1 获取接收消息用户id对应的ChatEndpoint对象
             Session receiverSession = onlineUsers.get(toId);
             // 5.2 通过ChatEndpoint对象给对应在线用户发送系统消息
@@ -238,6 +228,17 @@ public class ChatEndpoint {
                 e.printStackTrace();
             }
             log.info("发送在线系统信息成功！");
-        }else log.info("用户toId 不在线 ");
+        }else {
+            log.info("用户toId 不在线 ");
+            // 4. 将此系统消息存入数据库
+            Inform inform = new Inform();
+            BeanUtils.copyProperties(informVo,inform);
+            inform.setId(fromId + TimeUtil.getNowTimeString() + toId);
+            // 4.1 通过工具类手动获取 informMapper 对象
+            InformMapper informMapper = MyBeanUtil.getBean(InformMapper.class);
+            // 4.2 通知消息添加到数据库
+            informMapper.insert(inform);
+            log.info("离线通知已存入数据库！");
+        }
     }
 }

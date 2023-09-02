@@ -66,7 +66,7 @@ public class CollectServiceImpl implements CollectService {
             int insert = postCollectMapper.insert(postCollect);
             if (insert > 0){
                 // 4. 给帖子作者发送某人收藏了他的帖子 的 在线系统通知
-                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
                 InformVo informVo = new InformVo(
                         userId,
                         userInfo.getNickname(),
@@ -96,7 +96,7 @@ public class CollectServiceImpl implements CollectService {
                 postCollectInfo.setDeleted(1);
                 postCollectMapper.updateById(postCollectInfo);
                 // 4. 给帖子作者发送某人收藏了他的帖子 的 在线系统通知
-                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
                 InformVo informVo = new InformVo(
                         userId,
                         userInfo.getNickname(),
@@ -117,8 +117,9 @@ public class CollectServiceImpl implements CollectService {
 
     @Override
     public Result collectGood(String goodId) {
-        // 0. 拿到当前用户id
+        // 0. 拿到当前用户id、用户信息
         Long userId = UserThreadLocal.get().getId();
+        User userInfo = userMapper.getBriefInfo(userId);
         // 1. 通过 goodId 查询对应商品 并 确实商品是否存在
         Good good = goodMapper.selectById(goodId);
         if (Objects.equals(good,null)) {
@@ -137,10 +138,11 @@ public class CollectServiceImpl implements CollectService {
                     new GoodCollect(id,userId,goodId,0, TimeUtil.getNowTime());
             int insert = goodCollectMapper.insert(goodCollect);
             if (insert > 0){
-//                // 4. 给帖子作者发送某人收藏了他的帖子 的 在线系统通知
-//                ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-//                        new Inform(userId,post.getAuthorId(),postId,null,
-//                                post.getPostFirstPicture(), Constants.COLLECT_POST));
+                // 4. 给商品上架人（商家）发送某人收藏了他的商品 的 在线系统通知
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
+//                ChatEndpoint.sendInfo(  按业务考虑要不要解开
+//                        new InformVo(userId,userInfo.getNickname(),userInfo.getAvatar(),good.getOperatorId(),goodId,null,
+//                                good.getGoodFirstPicture(), Constants.COLLECT_POST,TimeUtil.getNowTime()));
                 return Result.success("收藏商品成功！");
             }else {
                 return Result.fail("收藏商品失败，联系后台");
@@ -156,10 +158,11 @@ public class CollectServiceImpl implements CollectService {
             }else {
                 goodCollectInfo.setDeleted(1);
                 goodCollectMapper.updateById(goodCollectInfo);
-//                // 4. 给帖子作者发送某人收藏了他的帖子 的 在线系统通知
-//                ChatEndpoint.sendInfo(/* fromId, toId, objectId, sonObjectId, firstImage, content*/
-//                        new Inform(userId,good.getOperatorId(),goodId,null,
-//                                good.getGoodFirstPicture(), Constants.COLLECT_POST));
+                // 4. 给商品上架人（商家）发送某人收藏了他的商品 的 在线系统通知
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
+//                ChatEndpoint.sendInfo(   按业务考虑要不要解开
+//                        new InformVo(userId,userInfo.getNickname(),userInfo.getAvatar(),good.getOperatorId(),goodId,null,
+//                                good.getGoodFirstPicture(), Constants.COLLECT_POST,TimeUtil.getNowTime()));
                 return Result.success("取消收藏商品成功！");
             }
         }

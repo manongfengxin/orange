@@ -75,7 +75,7 @@ public class LikeServiceImpl implements LikeService {
             int insert = postLikeMapper.insert(postLike);
             if (insert > 0){
                 // 4. 通知帖子作者，有人点赞了他的帖子
-                // 4.1 组装信息(id, fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
                 InformVo informVo = new InformVo(
                         userId,
                         userInfo.getNickname(),
@@ -101,7 +101,7 @@ public class LikeServiceImpl implements LikeService {
                 postLikeInfo.setLikeTime(TimeUtil.getNowTime());
                 postLikeMapper.updateById(postLikeInfo);
                 // 4. 通知帖子作者，有人点赞了他的帖子
-                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
                 InformVo informVo = new InformVo(
                         userId,
                         userInfo.getNickname(),
@@ -150,7 +150,7 @@ public class LikeServiceImpl implements LikeService {
             int insert = commentLikeMapper.insert(commentLike);
             if (insert > 0){
                 // 4. 通知评论发布者，有人点赞了他的评论
-                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
                 InformVo informVo = new InformVo(
                         userId,
                         userInfo.getNickname(),
@@ -176,7 +176,7 @@ public class LikeServiceImpl implements LikeService {
                 commentLikeInfo.setLikeTime(TimeUtil.getNowTime());
                 commentLikeMapper.updateById(commentLikeInfo);
                 // 4. 通知评论发布者，有人点赞了他的评论
-                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
                 InformVo informVo = new InformVo(
                         userId,
                         userInfo.getNickname(),
@@ -225,7 +225,7 @@ public class LikeServiceImpl implements LikeService {
             int insert = reviewLikeMapper.insert(reviewLike);
             if (insert > 0){
                 // 4. 通知评价发布者，有人点赞了他的评价
-                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
                 InformVo informVo = new InformVo(
                         userId,
                         userInfo.getNickname(),
@@ -251,7 +251,7 @@ public class LikeServiceImpl implements LikeService {
                 reviewLikeInfo.setLikeTime(TimeUtil.getNowTime());
                 reviewLikeMapper.updateById(reviewLikeInfo);
                 // 4. 通知评价发布者，有人点赞了他的评价
-                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content)
+                // 4.1 组装信息(fromId, fromNickname, fromAvatar, toId, objectId, sonObjectId, firstImage, content, informTime)
                 InformVo informVo = new InformVo(
                         userId,
                         userInfo.getNickname(),

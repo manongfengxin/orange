@@ -69,7 +69,7 @@ public class GoodController {
         Long userId = UserThreadLocal.get().getId();
         // 1. 拿到当前用户的商城搜索记录
         List<String> searchHistory = searchHistoryService.getSearchHistory(RedisKey.GOOD_SEARCH + userId);
-        //
+        // 2. 依据用户的搜索记录获取推荐列表
         IPage<Good> page =  goodService.recommendationList(searchHistory,new Page<Good>(current,Long.parseLong(pageSize)));
         return Result.success("商品推荐列表",page);
     }
@@ -110,6 +110,7 @@ public class GoodController {
      **/
     @GetMapping("/sales")
     public Result sales(@RequestParam(defaultValue = "1", name = "current") Integer current) {
+        // 依据商品的销售量获取商品列表
         IPage<Good> page =  goodService.sales(new Page<Good>(current,Long.parseLong(pageSize)));
         return Result.success("商城首页销量列表",page);
     }
@@ -144,7 +145,6 @@ public class GoodController {
                 new LambdaQueryWrapper<Footprint>()
                         .eq(Footprint::getUserId, userId)
                         .eq(Footprint::getGood, 1));
-
         return Result.success("商品浏览记录",goodFootprint);
     }
 }

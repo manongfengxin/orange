@@ -29,6 +29,9 @@ public class Constants {
 
     public static final String SYSTEM_MESSAGE = "系统消息";
 
+    public static final String SYSTEM_TIP = "系统提示";
+
+
 
 
 }
