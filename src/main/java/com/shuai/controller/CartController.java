@@ -33,10 +33,9 @@ public class CartController {
      * @return: 是否成功
      **/
     @PostMapping("/add")
-    public Result addCart(@RequestParam("goodId")String goodId,
-                          @RequestParam("goodNumber")Integer goodNumber) {
-        log.info("前端传入数据：{}和{}",goodId,goodNumber);
-        return cartService.addCart(goodId,goodNumber);
+    public Result addCart(@RequestBody Cart cart) {
+        log.info("前端传入数据：{}",cart);
+        return cartService.addCart(cart.getGoodId(),cart.getGoodNumber());
     }
 
     /**
@@ -59,10 +58,9 @@ public class CartController {
      * @return: 是否成功
      **/
     @PutMapping("/update")
-    public Result updateGoodsNumber(@RequestParam("goodId")String goodId,
-                                    @RequestParam("goodNumber")Integer goodNumber) {
-        log.info("前端传入数据：{}和{}",goodId,goodNumber);
-        return cartService.updateGoodNumber(goodId,goodNumber);
+    public Result updateGoodsNumber(@RequestBody Cart cart) {
+        log.info("前端传入数据：{}",cart);
+        return cartService.updateGoodNumber(cart.getGoodId(),cart.getGoodNumber());
     }
 
     /**
@@ -78,19 +76,4 @@ public class CartController {
         return cartService.deleteCart(goodId);
     }
 
-//    /**
-//     * @description: 清空购物车（所有）
-//     * @author: fengxin
-//     * @date: 2023/7/31 15:57
-//     * @param: [userId]
-//     * @return: void
-//     **/
-//    @DeleteMapping("/deleteAll")
-//    public String deleteShoppingCarAll(@RequestParam("userId")Long userId) {
-//        log.info("调用deleteShoppingCar接口，前端传入数据：{}",userId);
-//        if (userId == null) {
-//            return "清空购物车失败";
-//        }
-//        return shoppingCarService.deleteShoppingCarAll(userId);
-//    }
 }

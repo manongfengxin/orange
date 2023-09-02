@@ -23,13 +23,6 @@ public interface UserService extends IService<User> {
     Result loginByUser(UserVo uservo);
 
     /*
-     * 签发token
-     * @param: [uservo]
-     * @return: UserVO（含token）
-     **/
-    Result login(UserVo uservo);
-
-    /*
      * 注册用户名
      * @param: [uservo]
      * @return:

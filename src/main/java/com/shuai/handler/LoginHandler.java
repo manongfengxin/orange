@@ -46,6 +46,7 @@ public class LoginHandler implements HandlerInterceptor {
         log.info("请求路径：{}",request.getRequestURL());
         log.info("请求时间：{}", TimeUtil.getNowTime());
         log.info("handler==>{}",handler);
+        log.info("token==>{}",request.getHeader("Authorization"));
         log.info("请求类型：{}",request.getMethod());
 
         Enumeration<String> paramNames = request.getParameterNames();
@@ -55,7 +56,6 @@ public class LoginHandler implements HandlerInterceptor {
             String[] parameterValues = request.getParameterValues(paramName);
             System.out.println("" + paramName + " = " + Arrays.toString(parameterValues));
         }
-        log.info("token==>{}",request.getHeader("Authorization"));
 
         if (!(handler instanceof HandlerMethod)){//如果不是访问的controller方法就直接放行
             return true;

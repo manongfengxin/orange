@@ -162,12 +162,15 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
 
 
     @Override
-    public HashMap<String, Object> details(String goodId) {
+    public Result details(String goodId) {
         GoodVo goodVo = new GoodVo();
         // 0. 拿到当前用户id
         Long userId = UserThreadLocal.get().getId();
         // 1.通过商品id查询指定商品
         Good good = goodMapper.selectById(goodId);
+        if (Objects.equals(good,null)) {
+            return Result.fail("指定 goodId 商品不存在！");
+        }
         // 2.通过商品id查询该商品图片集,并打包进goodVo
         List<GoodImage> goodImages = goodImageMapper.selectList(
                 new LambdaQueryWrapper<GoodImage>()
@@ -199,7 +202,7 @@ public class GoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements Go
         Footprint footprint = new Footprint(
                 id,userId,null ,goodId,TimeUtil.getNowTime(),0,1);
         footprintMapper.insert(footprint);
-        return goodDetails;
+        return  Result.success("获取商品详情信息", goodDetails);
     }
 
     @Override

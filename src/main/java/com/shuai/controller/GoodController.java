@@ -125,8 +125,7 @@ public class GoodController {
     @GetMapping("/details")
     public Result details(@RequestParam("goodId") String goodId) {
         log.info("goodId==>{}", goodId);
-        HashMap<String, Object> details = goodService.details(goodId);
-        return Result.success("获取商品详情信息", details);
+        return goodService.details(goodId);
     }
 
     /**

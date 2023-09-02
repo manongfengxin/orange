@@ -30,7 +30,7 @@ public interface GoodService extends IService<Good> {
     IPage<Good> search(String keyword, Integer price, Integer sales, Page<Good> page);
 
     // 获取商品的详情信息
-    HashMap<String, Object> details(String goodId);
+    Result details(String goodId);
 
     // 下架商品
     Result deleteGood(String goodId);

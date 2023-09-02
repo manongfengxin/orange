@@ -43,43 +43,6 @@ public class ChatController {
     @Autowired
     private InformService informService;
 
-    @Autowired
-    private UserService userService;
-
-
-//    /*
-//     * @description: 获取和当前用户相关的所有聊天记录
-//     * @author: fengxin
-//     * @date: 2023/4/25 19:05
-//     * @param: []
-//     * @return: 和当前用户相关的所有聊天记录
-//     **/
-//    @GetMapping("/getChatRecord")
-//    public Result getChatRecord(@RequestParam(defaultValue = "0", name = "friendId")Long friendId){
-//        log.info("传过来的参数：friendId = {}",friendId);
-//        // 1.拿到当前用户
-//        UserVo userVO = UserThreadLocal.get();
-//        // 2.通过当前用户id拿到关于这个用户的所有聊天记录
-//        HashMap<Long, List<Object>> chatRecord = chatRecordService.getChatRecord(userVO.getId(),friendId);
-//        log.info("返回给前端的数据：{}",chatRecord);
-//        return Result.success("获取和当前用户相关的所有聊天记录",chatRecord);
-//    }
-
-    //    @GetMapping("/getChatList")
-//    public Result getChatList(){
-//        // 1.拿到当前用户
-//        UserVo userVO = UserThreadLocal.get();
-//
-//        // 2.通过当前用户id拿到关于这个用户的所有聊天记录
-//        HashMap<Long, List<Object>> chatRecord = chatRecordService.getChatRecord(userVO.getId(),friendId);
-//        log.info("返回给前端的数据：{}",chatRecord);
-//        return Result.success("获取和当前用户相关的所有聊天记录",chatRecord);
-//    }
-//
-
-
-
-
     /**
      * @description: 获取和商家聊天的消息列表
      * @author: fengxin

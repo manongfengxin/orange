@@ -64,24 +64,59 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      **/
     @Override
     public Result loginByUser(UserVo uservo) {
-        // 通过用户名获取用户记录
+        // 1. 通过用户名获取用户记录
         User userRecord = selectUserByUsername(uservo.getUsername());
-        // 判断用户存不存在
+        // 2. 判断用户存不存在
         if (null != userRecord){
-            //用户存在：
-            //将密码进行MD5加密
+            // 2.1 用户存在：
+            // 2.1.1 将密码进行MD5加密
             uservo.setPassword(MD5Utils.digest(uservo.getPassword()));
+            // 2.1.2 判断密码是否正确
             if (Objects.equals(uservo.getPassword(), userRecord.getPassword())){
-                //获取uid
+                // 设置用户id、传入登录模块
                 uservo.setId(userRecord.getId());
                 return this.login(uservo);
             }else {
                 return Result.fail("账号或密码错误！");
             }
         }else {
-            //用户不存在：
+            // 2.2 用户不存在：
             return Result.fail("该用户名还未注册！");
         }
+    }
+
+    /* 注册用户名+并设置密码
+     * @description:
+     * @author: fengxin
+     * @date: 2023/4/20 10:38
+     * @param: [uservo]：{username,password}
+     * @return: com.improve.shell.util.Result
+     **/
+    @Override
+    public Result register(UserVo uservo) {
+        // 1. 通过用户名查询数据库有没有已注册的用户记录
+        User userRecord = selectUserByUsername(uservo.getUsername());
+        // 2. 判断用户存不存在
+        if (null != userRecord){
+            // 2.1 用户存在：
+            return Result.fail("该用户名已被注册！");
+        }
+        // 2.2 用户不存在：
+        User user = new User();
+        // 3. 将密码进行MD5加密
+        uservo.setPassword(MD5Utils.digest(uservo.getPassword()));
+        // 4. 将uservo的值全部赋值给user：为了用user存入数据库
+        BeanUtils.copyProperties(uservo,user);
+        // 4.1 获取并设置注册时间
+        user.setCreateTime(TimeUtil.getNowTime());
+        // 4.2 设置默认昵称、头像
+        uservo.setNickname("昵称" + TimeUtil.getNowTimeString());
+        uservo.setAvatar("https://pic.imgdb.cn/item/64c617ea1ddac507cc683d71.webp");
+        // 向数据库添加新注册的用户
+        userMapper.insert(user);
+        // 添加成功后通过设置uservo的id属性为数据库的id
+        uservo.setId(user.getId());
+        return Result.success("注册成功，请登录！");
     }
 
     /*
@@ -104,49 +139,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @param: [uservo]
      * @return: com.improve.shell.util.Result
      **/
-    @Override
-    public Result login(UserVo uservo) {
+    private Result login(UserVo uservo) {
+        // 1. 以用户id 签发token
         String token = JwtUtil.sign(uservo.getId());
         uservo.setOpenid(null);
         uservo.setWxUnionId(null);
         uservo.setToken(token);
-        // 需要把token 存入redis，value存为uservo，下次用户访问登录资源时，可以根据token拿到用户的详细信息
+        // 2. 需要把token 存入redis，value存为uservo，下次用户访问登录资源时，可以根据token拿到用户的详细信息（存储 7 天）
         redisTemplate.opsForValue().set(RedisKey.TOKEN + token, JSON.toJSONString(uservo),7, TimeUnit.DAYS);
         return Result.success("登录成功",uservo);
-    }
-
-    /* 注册用户名+并设置密码
-     * @description:
-     * @author: fengxin
-     * @date: 2023/4/20 10:38
-     * @param: [uservo]：{username,password}
-     * @return: com.improve.shell.util.Result
-     **/
-    @Override
-    public Result register(UserVo uservo) {
-        // 通过用户名查询数据库有没有已注册的用户记录
-        User userRecord = selectUserByUsername(uservo.getUsername());
-        // 判断用户存不存在
-        if (null != userRecord){
-            //用户存在：
-            return Result.fail("该用户名已被注册！");
-        }
-        //用户不存在：
-        User user = new User();
-        //将密码进行MD5加密
-        uservo.setPassword(MD5Utils.digest(uservo.getPassword()));
-        // 将uservo的值全部赋值给user：为了用user存入数据库
-        BeanUtils.copyProperties(uservo,user);
-        // 获取并设置注册时间
-        user.setCreateTime(TimeUtil.getNowTime());
-        // 设置默认昵称、头像
-        uservo.setNickname("昵称" + TimeUtil.getNowTimeString());
-        uservo.setAvatar("https://pic.imgdb.cn/item/64c617ea1ddac507cc683d71.webp");
-        // 向数据库添加新注册的用户
-        userMapper.insert(user);
-        // 添加成功后通过设置uservo的id属性为数据库的id
-        uservo.setId(user.getId());
-        return Result.success("注册成功，请登录！");
     }
 
     /*-------------------------------------------------微信登录--------------------------------------------------------------*/
@@ -160,17 +161,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
          * 4. 生成sessionId返回给前端，作为用户登录的标识
          * 5. 生成sessionId，当用户点击登录时，可以标识用户身份
          */
-
-//        String url = "https://api.weixin.qq.com/sns/jscode2session?appid="+
-//                appid + "&secret=" + secret + "&js_code=" + code + "&grant_type=authorization_code";
-//        String res = HttpUtil.get(url);
-//        // 随机生成一组字符串uuid，在redis中充当 key的主体部分，value存入真正的sessionId
-//        String uuid = UUID.randomUUID().toString();                                       //保存30分钟
-//        redisTemplate.opsForValue().set(RedisKey.WX_SESSION_ID + uuid,res,30, TimeUnit.MINUTES);
-//        // 将随机生成的uuid作为sessionId传回前端
-//        Map<String,String> map = new HashMap<>();
-//        map.put("sessionId",uuid);
-//        log.info("sessionId==>{}",uuid);
         String replaceUrl = "https://api.weixin.qq.com/sns/jscode2session?appid="+
                 appid + "&secret=" + secret + "&js_code=" + code + "&grant_type=authorization_code";
         String res = HttpUtil.get(replaceUrl);
