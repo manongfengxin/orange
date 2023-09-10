@@ -42,6 +42,7 @@ public class MyController {
     @Autowired
     private CollectService collectService;
 
+
     /**
      * @description: 获取我的帖子列表（传入他人id亦可访问他人帖子列表）
      * @author: fengxin
@@ -140,6 +141,9 @@ public class MyController {
     public Result updateInfo(@RequestBody User user) {
         return userService.updateInfo(user);
     }
+
+
+
 
 
 

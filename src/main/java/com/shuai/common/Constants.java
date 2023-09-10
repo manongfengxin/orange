@@ -32,6 +32,13 @@ public class Constants {
     public static final String SYSTEM_TIP = "系统提示";
 
 
+    public static final String WECHAT_PAY = "微信支付";
+
+    public static final String ALI_PAY = "支付宝支付";
+
+    public static final String WAIT_PAY = "待支付";
+
+    public static final String COMPLETE_PAY = "已支付";
 
 
 }

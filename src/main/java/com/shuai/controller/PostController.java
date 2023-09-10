@@ -74,9 +74,9 @@ public class PostController {
      * @return: 是否成功
      **/
     @DeleteMapping("/delete")
-    public Result delete(@RequestParam("postId")String postId) {
-        log.info("传入：{}",postId);
-        return postService.delete(postId);
+    public Result delete(@RequestBody PostVo postVo) {
+        log.info("传入：{}",postVo.getPostId());
+        return postService.delete(postVo.getPostId());
     }
 
     /**

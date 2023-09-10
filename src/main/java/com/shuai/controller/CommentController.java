@@ -63,9 +63,9 @@ public class CommentController {
      * @return: 是否删除成功
      **/
     @DeleteMapping("/delete")
-    public Result deleteComment(@RequestParam("commentId") String commentId) {
-        log.info("传过来的commentId==>{}",commentId);
-        return commentService.deleteComment(commentId);
+    public Result deleteComment(@RequestBody CommentVo commentVo) {
+        log.info("传过来的commentId==>{}",commentVo.getCommentId());
+        return commentService.deleteComment(commentVo.getCommentId());
     }
 
     /**

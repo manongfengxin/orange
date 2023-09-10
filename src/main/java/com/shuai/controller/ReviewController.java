@@ -62,9 +62,9 @@ public class ReviewController {
      * @return: 是否删除成功
      **/
     @DeleteMapping("/delete")
-    public Result deleteReview(@RequestParam("reviewId") String reviewId) {
-        log.info("传过来的 reviewId ==>{}",reviewId);
-        return reviewService.deleteReview(reviewId);
+    public Result deleteReview(@RequestBody ReviewVo reviewVo) {
+        log.info("传过来的 reviewId ==>{}",reviewVo.getReviewId());
+        return reviewService.deleteReview(reviewVo.getReviewId());
     }
 
     /**

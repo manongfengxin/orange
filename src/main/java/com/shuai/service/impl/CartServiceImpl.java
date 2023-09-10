@@ -46,7 +46,7 @@ public class CartServiceImpl implements CartService {
         cart.setUserId(userId);
         cart.setAddTime(TimeUtil.getNowTime());
         // 2. 通过查询数据库，判断购物车内是否已有该商品
-        Cart cartInfo = cartMapper.selectOne(new LambdaQueryWrapper<Cart>().eq(Cart::getGoodId, goodId));
+        Cart cartInfo = cartMapper.selectOne(new LambdaQueryWrapper<Cart>().eq(Cart::getGoodId, goodId).eq(Cart::getUserId,userId));
         // 2.1 判断购物车内是否已有该商品
         if (Objects.equals(cartInfo,null)) {
             // 2.1.1 购物车未包含该商品

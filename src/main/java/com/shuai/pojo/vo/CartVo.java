@@ -21,6 +21,9 @@ public class CartVo {
     // 商品名称
     private String goodName;
 
+    // 商品描述
+    private String goodDescription;
+
     // 商品首图
     private String goodImage;
 
@@ -33,6 +36,7 @@ public class CartVo {
     public CartVo(Good good) {
         this.goodId = good.getId();
         this.goodName = good.getGoodName();
+        this.goodDescription = good.getGoodDescription();
         this.goodImage = good.getGoodFirstPicture();
         this.goodPrice = good.getGoodPrice();
     }

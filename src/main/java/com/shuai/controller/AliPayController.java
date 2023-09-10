@@ -4,20 +4,21 @@ package com.shuai.controller;
 import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.payment.page.models.AlipayTradePagePayResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.shuai.common.Constants;
 import com.shuai.handler.NoAuth;
 import com.shuai.pojo.po.Good;
 import com.shuai.pojo.po.Order;
+import com.shuai.pojo.po.OrderDetail;
 import com.shuai.pojo.vo.AliPay;
 import com.shuai.service.GoodService;
+import com.shuai.service.OrderDetailService;
 import com.shuai.service.OrderService;
 import com.shuai.util.Result;
-import com.shuai.util.TimeUtil;
-import org.apache.ibatis.ognl.Ognl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,6 +34,9 @@ public class AliPayController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private OrderDetailService orderDetailService;
 
     @Autowired
     private GoodService goodService;
@@ -78,24 +82,31 @@ public class AliPayController {
                 System.out.println("买家付款金额: " + params.get("buyer_pay_amount"));
 
                 // 更新订单未支付 -> 已支付
+                // 通过订单号查询订单
                 Order order = orderService.getOne(
                         new LambdaQueryWrapper<Order>().eq(Order::getOrderNo, tradeNo));
                 // 判断订单是否存在
                 if (Objects.equals(order, null)) {
                     return Result.fail("支付错误！该订单不存在");
                 }
-                // 对应商品的销量 +1
-                String goodId = order.getGoodId();
-                Good good = goodService.getById(goodId);
-                good.setGoodSales(good.getGoodSales() + 1);
-                goodService.updateById(good);
                 // 支付成功修改订单的状态（修改支付时间不为空）
-                if (Objects.equals(order.getPayTime(), null)) {
+                if (Objects.equals(order.getOrderStatus(), Constants.WAIT_PAY)) {
+                    order.setOrderStatus(Constants.COMPLETE_PAY);
                     order.setPayTime(gmtPayment);
                     orderService.updateById(order);
                 } else {
                     return Result.fail("支付错误！该订单重复支付");
                 }
+                // 对应商品的销量 增加
+                List<OrderDetail> orderDetails = orderDetailService.list(
+                        new LambdaQueryWrapper<OrderDetail>()
+                                .eq(OrderDetail::getOrderId, order.getId()));
+                for (OrderDetail orderDetail :orderDetails) {
+                    Good good = goodService.getById(orderDetail.getGoodId());
+                    good.setGoodSales(good.getGoodSales() + orderDetail.getGoodNumber());
+                    goodService.updateById(good);
+                }
+
 
             }else {
                 return Result.fail("支付失败！支付宝验签不通过");

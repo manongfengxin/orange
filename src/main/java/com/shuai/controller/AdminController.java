@@ -1,5 +1,6 @@
 package com.shuai.controller;
 
+import com.shuai.pojo.po.Good;
 import com.shuai.pojo.vo.GoodVo;
 import com.shuai.pojo.vo.PostVo;
 import com.shuai.service.GoodService;
@@ -62,8 +63,8 @@ public class AdminController {
      * @return: 是否成功
      **/
     @DeleteMapping("/deleteGood")
-    public Result deleteGood(@RequestParam("goodId")String goodId) {
-        log.info("传入：{}",goodId);
-        return goodService.deleteGood(goodId);
+    public Result deleteGood(@RequestBody GoodVo goodVo) {
+        log.info("传入：{}",goodVo);
+        return goodService.deleteGood(goodVo.getGoodId());
     }
 }

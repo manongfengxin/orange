@@ -2,6 +2,7 @@ package com.shuai.controller;
 
 import com.shuai.common.RedisKey;
 import com.shuai.handler.UserThreadLocal;
+import com.shuai.pojo.vo.SearchVo;
 import com.shuai.service.SearchHistoryService;
 import com.shuai.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,19 +54,18 @@ public class SearchHistoryController {
      * @return: 是否成功
      **/
     @DeleteMapping("/delete")
-    public Result delete(@RequestParam("keyword")String keyword,
-                         @RequestParam(defaultValue = "商城",name = "type")String type) {
+    public Result delete(@RequestBody SearchVo searchVo) {
         // 1. 获取当前用户id
         Long userId = UserThreadLocal.get().getId();
         // 2. 判断是 商城 还是 论坛的搜索历史记录
         String userKey;
-        if (Objects.equals(type,"论坛")) {
+        if (Objects.equals(searchVo.getType(),"论坛")) {
             userKey = RedisKey.POST_SEARCH + userId;
         }else {
             userKey = RedisKey.GOOD_SEARCH + userId;
         }
         // 3. 删除当前用户指定的搜索记录
-        Boolean aBoolean = searchHistoryService.deleteSearchHistory(userKey, keyword);
+        Boolean aBoolean = searchHistoryService.deleteSearchHistory(userKey, searchVo.getKeyword());
         if (aBoolean) {
             return Result.success("删除成功！");
         }
@@ -80,12 +80,12 @@ public class SearchHistoryController {
      * @return: 是否成功
      **/
     @DeleteMapping("/clear")
-    public Result clear(@RequestParam(defaultValue = "商城",name = "type")String type) {
+    public Result clear(@RequestBody SearchVo searchVo) {
         // 1. 获取当前用户id
         Long userId = UserThreadLocal.get().getId();
         // 2. 判断是 商城 还是 论坛的搜索历史记录
         String userKey;
-        if (Objects.equals(type,"论坛")) {
+        if (Objects.equals(searchVo.getType(),"论坛")) {
             userKey = RedisKey.POST_SEARCH + userId;
         }else {
             userKey = RedisKey.GOOD_SEARCH + userId;
