@@ -21,6 +21,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,12 +41,16 @@ import java.util.concurrent.TimeUnit;
 @Transactional
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     private UserMapper userMapper;
 
+//    @Autowired
+//    private RedisTemplate<String,Object> redisTemplate;
     @Autowired
-    private RedisTemplate<String,Object> redisTemplate;
+    private RedisUtil redisUtil;
 
     @Value("${weixin.appid}")
     private String appid;
@@ -83,6 +90,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 2.2 用户不存在：
             return Result.fail("该用户名还未注册！");
         }
+    }
+
+    @Override
+    public Result accountLogin(UserVo uservo) {
+        //AuthenticationManager authenticate进行用户认证
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(uservo.getUsername(),uservo.getPassword());
+        Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+        //如果认证没通过，给出对应的提示
+        if(Objects.isNull(authenticate)){
+            throw new RuntimeException("登录失败");
+        }
+        //如果认证通过了，使用userid生成一个jwt jwt存入ResponseResult返回
+        UserVo userVo = (UserVo) authenticate.getPrincipal();
+        return login(userVo);
     }
 
     /* 注册用户名+并设置密码
@@ -147,7 +168,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         uservo.setPassword(null);
         uservo.setToken(token);
         // 2. 需要把token 存入redis，value存为uservo，下次用户访问登录资源时，可以根据token拿到用户的详细信息（存储 7 天）
-        redisTemplate.opsForValue().set(RedisKey.TOKEN + token, JSON.toJSONString(uservo),7, TimeUnit.DAYS);
+//        redisTemplate.opsForValue().set(RedisKey.TOKEN + token, JSON.toJSONString(uservo),7, TimeUnit.DAYS);
+        redisUtil.setCacheObject(RedisKey.TOKEN + token, JSON.toJSONString(uservo),7, TimeUnit.DAYS);
         return Result.success("登录成功",uservo);
     }
 
@@ -168,7 +190,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         log.info("调用微信接口返回的值 ==> {}", res);
 
         String uuid = UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set(RedisKey.WX_SESSION_ID + uuid, res, 30, TimeUnit.MINUTES);
+//        redisTemplate.opsForValue().set(RedisKey.WX_SESSION_ID + uuid, res, 30, TimeUnit.MINUTES);
+        redisUtil.setCacheObject(RedisKey.WX_SESSION_ID + uuid, res, 30, TimeUnit.MINUTES);
 
         Map<String, String> map = new HashMap<>();
         map.put("sessionId", uuid);
@@ -191,7 +214,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             String wxRes = wxService.WxDecrypt(wxAuth.getEncryptedData(),wxAuth.getIv(),wxAuth.getSessionId());
             WxUserInfo wxUserInfo = JSON.parseObject(wxRes, WxUserInfo.class);
             // 从redis中拿到openId
-            String json = (String) redisTemplate.opsForValue().get(RedisKey.WX_SESSION_ID + wxAuth.getSessionId());
+//            String json = (String) redisTemplate.opsForValue().get(RedisKey.WX_SESSION_ID + wxAuth.getSessionId());
+            String json = redisUtil.getCacheObject(RedisKey.WX_SESSION_ID + wxAuth.getSessionId());
+
             JSONObject jsonObject = JSON.parseObject(json);
             String openid = (String) jsonObject.get("openid");
             // 给 uservo 赋值
@@ -226,7 +251,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (refresh) {
             String token = JwtUtil.sign(uservo.getId());
             uservo.setToken(token);
-            redisTemplate.opsForValue().set(RedisKey.TOKEN + token, JSON.toJSONString(uservo), 7, TimeUnit.DAYS);
+//            redisTemplate.opsForValue().set(RedisKey.TOKEN + token, JSON.toJSONString(uservo), 7, TimeUnit.DAYS);
+            redisUtil.setCacheObject(RedisKey.TOKEN + token, JSON.toJSONString(uservo),7, TimeUnit.DAYS);
         }
         return Result.success("返回用户信息", uservo);
     }
@@ -239,7 +265,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 塑造 key
         String key = RedisKey.TOKEN + token;
         // 删除此 key
-        redisTemplate.delete(key);
+//        redisTemplate.delete(key);
+        redisUtil.deleteObject(key);
         return Result.success("登出成功！");
     }
 

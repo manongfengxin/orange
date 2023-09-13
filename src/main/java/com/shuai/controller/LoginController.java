@@ -38,6 +38,14 @@ public class LoginController {
         return userService.loginByUser(uservo);
     }
 
+    @NoAuth
+    @PostMapping("accountLogin")
+    public Result accountLogin(@RequestBody UserVo uservo){
+        log.info("传过来的uservo==>{}",uservo);
+        return userService.accountLogin(uservo);
+    }
+
+
 
     /* 注册用户名+并设置密码
      * @description:

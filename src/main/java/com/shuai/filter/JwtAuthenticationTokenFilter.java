@@ -36,14 +36,13 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //获取token
-        String token = request.getHeader("token");
+        String token = request.getHeader("Authorization");
         if (!StringUtils.hasText(token)) {
             //放行（即不去解析token，放行让后面的过滤器拦截这个不合法登录）
             filterChain.doFilter(request, response);
             return;
         }
-        //解析token
-        String userid;
+        //解析token 判断是否合法
         log.info("token==>{}",token);
         boolean verify = JwtUtil.verify(token);
         if (!verify){

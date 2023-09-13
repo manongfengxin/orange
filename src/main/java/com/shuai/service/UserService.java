@@ -22,6 +22,9 @@ public interface UserService extends IService<User> {
      **/
     Result loginByUser(UserVo uservo);
 
+    // 账号密码登录
+    Result accountLogin(UserVo uservo);
+
     /*
      * 注册用户名
      * @param: [uservo]
@@ -43,4 +46,5 @@ public interface UserService extends IService<User> {
 
     // 修改个人信息
     Result updateInfo(User user);
+
 }
