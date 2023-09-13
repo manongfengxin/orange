@@ -1,8 +1,6 @@
 package com.shuai.controller;
 
-import com.shuai.pojo.po.Good;
 import com.shuai.pojo.vo.GoodVo;
-import com.shuai.pojo.vo.PostVo;
 import com.shuai.service.GoodService;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;

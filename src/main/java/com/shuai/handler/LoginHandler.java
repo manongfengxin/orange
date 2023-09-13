@@ -22,7 +22,7 @@ import java.util.Objects;
 
 //将拦截器放入mvc配置中
 @Slf4j
-@Component
+//@Component
 public class LoginHandler implements HandlerInterceptor {
 
     @Autowired

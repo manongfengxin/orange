@@ -38,11 +38,11 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
 
-    @Autowired
-    private LoginHandler loginHandler;
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginHandler);
-    }
+//    @Autowired
+//    private LoginHandler loginHandler;
+//
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(loginHandler);
+//    }
 }

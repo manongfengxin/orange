@@ -144,6 +144,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String token = JwtUtil.sign(uservo.getId());
         uservo.setOpenid(null);
         uservo.setWxUnionId(null);
+        uservo.setPassword(null);
         uservo.setToken(token);
         // 2. 需要把token 存入redis，value存为uservo，下次用户访问登录资源时，可以根据token拿到用户的详细信息（存储 7 天）
         redisTemplate.opsForValue().set(RedisKey.TOKEN + token, JSON.toJSONString(uservo),7, TimeUnit.DAYS);

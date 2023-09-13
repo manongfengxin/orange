@@ -23,24 +23,5 @@ import java.util.List;
 @Transactional
 public class FootprintServiceImpl extends ServiceImpl<FootprintMapper,Footprint> implements FootprintService {
 
-    @Autowired
-    private FootprintMapper footprintMapper;
 
-//
-//    @Override
-//    public Result getPostFootprint() {
-//
-//        return null;
-//    }
-//
-//    @Override
-//    public Result getGoodFootprint() {
-//        // 0. 拿到当前用户id
-//        Long userId = UserThreadLocal.get().getId();
-//        // 1. 通过用户id 查询商品浏览记录
-//
-//
-//
-//        return null;
-//    }
 }
