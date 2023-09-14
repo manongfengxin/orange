@@ -101,7 +101,9 @@ public class UserVo implements UserDetails {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
         return authorities;
+//        return null;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {

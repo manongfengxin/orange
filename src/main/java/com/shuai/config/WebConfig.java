@@ -9,6 +9,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.swing.tree.TreeNode;
+
 /**
  * 处理CORS报错
  * 解决前后端交互的跨域问题
@@ -23,12 +25,19 @@ public class WebConfig implements WebMvcConfigurer {
      */
     @Override
     public void addCorsMappings(CorsRegistry registry){
+        // 设置允许跨域的路径
         registry.addMapping("/**")
+                // 设置允许跨域请求的域名
                 .allowedOriginPatterns("*")
-                .allowedMethods("GET","POST","PUT","HEAD","OPTIONS","DELETE")
+                // 是否与允许cookie
                 .allowCredentials(true)
+                // 设置允许的请求方式
+                .allowedMethods("GET","POST","PUT","DELETE","HEAD","OPTIONS")
+                // 跨域允许时间
                 .maxAge(3600)
-                .allowedHeaders("*");
+                // 设置允许的 header 属性
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 
     //配置OrderedHiddenHttpMethodFilter

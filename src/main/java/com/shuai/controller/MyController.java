@@ -142,6 +142,21 @@ public class MyController {
         return userService.updateInfo(user);
     }
 
+    /**
+     * @description: 获取我的个人信息
+     * @author: fengxin
+     * @date: 2023/9/14 8:34
+     * @param: []
+     * @return: 我的个人信息
+     **/
+    @GetMapping("/info")
+    public Result info() {
+        // 0. 拿到当前用户id
+        Long userId = UserThreadLocal.get().getId();
+        // 1. 查询个人信息
+        User userInfo = userService.getById(userId);
+        return Result.success("获取我的个人信息",userInfo);
+    }
 
 
 

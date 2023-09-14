@@ -18,6 +18,7 @@ import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -101,6 +102,8 @@ public class PostController {
      * @return: 帖子列表
      **/
     @GetMapping("/hottestList")
+//    @PreAuthorize("@authority.hasAuthority('test')")
+    @PreAuthorize("hasAuthority('test5')")
     public Result hottestList(@RequestParam(defaultValue = "",name = "title")String title,
                               @RequestParam(defaultValue = "1", name = "current") Integer current) {
         log.info("current==>{}",current);

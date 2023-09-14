@@ -1,28 +1,48 @@
 package com.shuai.config;
 
+import com.alibaba.fastjson.JSON;
 import com.shuai.filter.JwtAuthenticationTokenFilter;
+import com.shuai.handler.AccessDeniedHandlerImpl;
+import com.shuai.handler.AuthenticationEntryPointImpl;
+import com.shuai.util.Result;
+import com.shuai.util.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * @Author 三更  B站： https://space.bilibili.com/663528522
- */
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
+    @Autowired
+    private AuthenticationEntryPoint authenticationEntryPoint;
 
-    // 创建BCryptPasswordEncoder注入容器中
+    @Autowired
+    private AccessDeniedHandler accessDeniedHandler;
+
+
+    // 创建BCryptPasswordEncoder(加密方式)注入容器中
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -44,13 +64,42 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 // 对于登录接口 允许匿名访问
-                .antMatchers("/login/loginByUser","/login/accountLogin","/login/registerUser","/login/getSessionId","/login/authLogin").anonymous()
+                .antMatchers(
+                        "/login/loginByUser",
+                        "/login/accountLogin",
+                        "/login/registerUser",
+                        "/login/getSessionId",
+                        "/login/authLogin").anonymous()
                 // 除上面外的所有请求全部需要鉴权认证
-                .anyRequest().authenticated()
+                .anyRequest().authenticated();
 
-            ;
-
-        //把token校验过滤器添加到过滤器链中(addFilterBefore：把jwtAuthenticationTokenFilter自定义过滤器放到UsernamePasswordAuthenticationFilter过滤器之前)
+        // 把token校验过滤器添加到过滤器链中(addFilterBefore：把jwtAuthenticationTokenFilter自定义过滤器放到UsernamePasswordAuthenticationFilter过滤器之前)
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // 配置异常处理器
+        http.exceptionHandling()
+                // 配置认证异常处理器
+                .authenticationEntryPoint(new AuthenticationEntryPoint() {
+                    @Override
+                    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+                        Result result = Result.fail("用户认证失败，请重新登录");
+                        String json = JSON.toJSONString(result);
+                        //处理异常
+                        WebUtils.renderString(response,json);
+                    }
+                })
+                // 配置权限异常处理器
+                .accessDeniedHandler(new AccessDeniedHandler() {
+                    @Override
+                    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                        Result result = Result.fail("您的权限不足");
+                        String json = JSON.toJSONString(result);
+                        //处理异常
+                        WebUtils.renderString(response,json);
+                    }
+                });
+
+        // 允许跨域
+        http.cors();
     }
 }

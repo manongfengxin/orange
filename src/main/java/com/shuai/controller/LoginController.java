@@ -7,6 +7,8 @@ import com.shuai.service.UserService;
 import com.shuai.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +49,7 @@ public class LoginController {
      **/
     @PostMapping("/accountLogin")
     public Result accountLogin(@RequestBody UserVo uservo){
-        log.info("传过来的uservo==>{}",uservo);
+//        log.info("传过来的uservo==>{}",uservo);
         return userService.accountLogin(uservo);
     }
 

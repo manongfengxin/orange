@@ -169,13 +169,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private Result login(UserVo uservo) {
         // 1. 以用户id 签发token
         String token = JwtUtil.sign(uservo.getId());
-        uservo.setOpenid(null);
-        uservo.setWxUnionId(null);
-        uservo.setPassword(null);
-        uservo.setToken(token);
+        // 2. 设置存入 redis
+        UserVo userVo = new UserVo();
+        userVo.setId(uservo.getId());
+        userVo.setToken(token);
+        userVo.setPermissions(uservo.getPermissions());
+        System.out.println("userVo = " + userVo);
         // 2. 需要把token 存入redis，value存为uservo，下次用户访问登录资源时，可以根据token拿到用户的详细信息（存储 7 天）
 //        redisTemplate.opsForValue().set(RedisKey.TOKEN + token, JSON.toJSONString(uservo),7, TimeUnit.DAYS);
-        redisUtil.setCacheObject(RedisKey.TOKEN + token, JSON.toJSONString(uservo),7, TimeUnit.DAYS);
+        redisUtil.setCacheObject(RedisKey.TOKEN + token, JSON.toJSONString(userVo),7, TimeUnit.DAYS);
+        uservo.setToken(token);
         return Result.success("登录成功",uservo);
     }
 

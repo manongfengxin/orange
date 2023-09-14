@@ -21,11 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 import java.util.*;
@@ -145,5 +143,48 @@ public class GoodController {
                         .eq(Footprint::getUserId, userId)
                         .eq(Footprint::getGood, 1));
         return Result.success("商品浏览记录",goodFootprint);
+    }
+
+    /**
+     * @description: 操作员添加商品
+     * @author: fengxin
+     * @date: 2023/8/13 10:37
+     * @param: [goodVo]
+     * @return: 是否成功
+     **/
+    @PostMapping("/add")
+    @PreAuthorize("hasAuthority('/good/add')")
+    public Result addGood(@RequestBody GoodVo goodVo) {
+        log.info("传入：{}",goodVo);
+        return goodService.add(goodVo);
+    }
+
+    /**
+     * @description: 操作员修改上架商品
+     * @author: fengxin
+     * @date: 2023/8/13 10:44
+     * @param: [goodVo]
+     * @return: 是否成功
+     **/
+    @PutMapping("/update")
+    @PreAuthorize("hasAuthority('/good/update')")
+    public Result put(@RequestBody GoodVo goodVo) {
+        log.info("传入：{}", goodVo);
+        return goodService.put(goodVo);
+    }
+
+
+    /**
+     * @description: 下架商品下架指定商品
+     * @author: fengxin
+     * @date: 2023/8/14 14:47
+     * @param: [goodId]
+     * @return: 是否成功
+     **/
+    @DeleteMapping("/delete")
+    @PreAuthorize("hasAuthority('/good/delete')")
+    public Result deleteGood(@RequestBody GoodVo goodVo) {
+        log.info("传入：{}",goodVo);
+        return goodService.deleteGood(goodVo.getGoodId());
     }
 }
