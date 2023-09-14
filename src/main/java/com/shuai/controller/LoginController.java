@@ -1,6 +1,5 @@
 package com.shuai.controller;
 
-import com.shuai.handler.NoAuth;
 import com.shuai.pojo.bo.WxAuth;
 import com.shuai.pojo.vo.UserVo;
 import com.shuai.service.UserService;
@@ -33,7 +32,7 @@ public class LoginController {
      * @param: [uservo]：{username,password}
      * @return: com.improve.shell.util.Result
      **/
-    @NoAuth
+    @Deprecated// 标识：已经弃用
     @PostMapping("/loginByUser")
     public Result login(@RequestBody UserVo uservo){
         log.info("传过来的uservo==>{}",uservo);
@@ -62,7 +61,6 @@ public class LoginController {
      * @param: [uservo]：{username,password}
      * @return: com.improve.shell.util.Result
      **/
-    @NoAuth
     @PostMapping("/registerUser")
     public Result registerUser(@RequestBody UserVo uservo){
         log.info("传过来的uservo==>{}",uservo);
@@ -76,7 +74,6 @@ public class LoginController {
      * @param: [code]
      * @return: sessionId
      **/
-    @NoAuth
     @GetMapping("/getSessionId")
     public Result getSessionId(@RequestParam String code){
         log.info("接收到code==>{}",code);
@@ -88,7 +85,6 @@ public class LoginController {
      * @param: [wxAuth]
      * @return: 用户微信基本信息 + token
      **/
-    @NoAuth
     @PostMapping("/authLogin")
     public Result authLogin(@RequestBody WxAuth wxAuth){
         log.info("获得三个参数WxAuth==>{}",wxAuth);

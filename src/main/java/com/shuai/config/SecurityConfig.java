@@ -69,7 +69,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/login/accountLogin",
                         "/login/registerUser",
                         "/login/getSessionId",
-                        "/login/authLogin").anonymous()
+                        "/login/authLogin",
+                        "/alipay/pay,",
+                        "/alipay/notify",
+                        "/wechat/notify").anonymous()
                 // 除上面外的所有请求全部需要鉴权认证
                 .anyRequest().authenticated();
 
@@ -79,25 +82,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 配置异常处理器
         http.exceptionHandling()
                 // 配置认证异常处理器
-                .authenticationEntryPoint(new AuthenticationEntryPoint() {
-                    @Override
-                    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-                        Result result = Result.fail("用户认证失败，请重新登录");
-                        String json = JSON.toJSONString(result);
-                        //处理异常
-                        WebUtils.renderString(response,json);
-                    }
-                })
+                .authenticationEntryPoint(authenticationEntryPoint)
                 // 配置权限异常处理器
-                .accessDeniedHandler(new AccessDeniedHandler() {
-                    @Override
-                    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-                        Result result = Result.fail("您的权限不足");
-                        String json = JSON.toJSONString(result);
-                        //处理异常
-                        WebUtils.renderString(response,json);
-                    }
-                });
+                .accessDeniedHandler(accessDeniedHandler);
 
         // 允许跨域
         http.cors();

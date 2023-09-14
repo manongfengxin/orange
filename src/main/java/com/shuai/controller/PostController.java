@@ -102,8 +102,6 @@ public class PostController {
      * @return: 帖子列表
      **/
     @GetMapping("/hottestList")
-//    @PreAuthorize("@authority.hasAuthority('test')")
-    @PreAuthorize("hasAuthority('test5')")
     public Result hottestList(@RequestParam(defaultValue = "",name = "title")String title,
                               @RequestParam(defaultValue = "1", name = "current") Integer current) {
         log.info("current==>{}",current);

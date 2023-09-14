@@ -21,8 +21,9 @@ import java.util.Enumeration;
 import java.util.Objects;
 
 //将拦截器放入mvc配置中
+@Deprecated/* 标识：已经弃用 */
 @Slf4j
-//@Component
+//@Component 不再注入容器
 public class LoginHandler implements HandlerInterceptor {
 
     @Autowired

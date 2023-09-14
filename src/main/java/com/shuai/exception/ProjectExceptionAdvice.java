@@ -13,6 +13,7 @@ public class ProjectExceptionAdvice {
     // 拦截所有的异常信息
     @ExceptionHandler(Exception.class)
     public Result doException(Exception ex) throws Exception {
+
         if (ex instanceof AuthenticationException) {
             // 排除 AuthenticationException，不进行处理
             throw ex; // 将异常再次抛出，交由上层处理
@@ -21,6 +22,7 @@ public class ProjectExceptionAdvice {
             // 排除 AccessDeniedException，不进行处理
             throw ex; // 将异常再次抛出，交由上层处理
         }
+
         // 记录日志
         // 发送信息给运维
         // 发送邮件给开发人员，ex对象发送给开发人员

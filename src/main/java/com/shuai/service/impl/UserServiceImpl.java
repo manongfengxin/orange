@@ -75,6 +75,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return: com.improve.shell.util.Result
      **/
     @Override
+    @Deprecated/* 标识：已经弃用 */
     public Result loginByUser(UserVo uservo) {
         // 1. 通过用户名获取用户记录
         User userRecord = selectUserByUsername(uservo.getUsername());

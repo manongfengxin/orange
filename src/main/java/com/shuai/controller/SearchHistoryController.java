@@ -6,6 +6,7 @@ import com.shuai.pojo.vo.SearchVo;
 import com.shuai.service.SearchHistoryService;
 import com.shuai.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,9 +15,10 @@ import java.util.Objects;
 /**
  * @Author: fengxin
  * @CreateTime: 2023-08-23  13:44
- * @Description: TODO
+ * @Description: 搜索历史管理（redis储存）
  */
 @RestController
+@Transactional
 @RequestMapping("/searchHistory")
 public class SearchHistoryController {
 

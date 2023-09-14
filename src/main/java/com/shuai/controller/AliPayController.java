@@ -5,7 +5,6 @@ import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.payment.page.models.AlipayTradePagePayResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.shuai.common.Constants;
-import com.shuai.handler.NoAuth;
 import com.shuai.pojo.po.Good;
 import com.shuai.pojo.po.Order;
 import com.shuai.pojo.po.OrderDetail;
@@ -15,6 +14,7 @@ import com.shuai.service.OrderDetailService;
 import com.shuai.service.OrderService;
 import com.shuai.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -27,6 +27,7 @@ import java.util.Objects;
  * @CreateTime: 2023-07-14  20:39
  * @Description: 支付宝接口对接类
  */
+@Transactional
 @RestController
 @RequestMapping("/alipay")
 public class AliPayController {
@@ -41,8 +42,6 @@ public class AliPayController {
     @Autowired
     private GoodService goodService;
 
-
-    @NoAuth
     @GetMapping("/pay")
     public String pay(AliPay aliPay) {
         AlipayTradePagePayResponse response;
@@ -56,8 +55,6 @@ public class AliPayController {
         return response.getBody();
     }
 
-
-    @NoAuth
     @PostMapping("/notify")  // 注意这里必须是POST接口
     public Result payNotify(HttpServletRequest request) throws Exception {
         if (request.getParameter("trade_status").equals("TRADE_SUCCESS")) {

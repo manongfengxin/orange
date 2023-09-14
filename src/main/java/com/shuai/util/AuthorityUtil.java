@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @Author: fengxin
  * @CreateTime: 2023-09-14  10:34
- * @Description: 自定义权限管理
+ * @Description: 自定义权限管理（待补）
  */
 @Component("authority")
 public class AuthorityUtil {

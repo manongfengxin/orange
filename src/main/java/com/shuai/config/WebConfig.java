@@ -47,6 +47,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
 
+    // 自定义拦截器 已经弃用
 //    @Autowired
 //    private LoginHandler loginHandler;
 //
@@ -54,4 +55,5 @@ public class WebConfig implements WebMvcConfigurer {
 //    public void addInterceptors(InterceptorRegistry registry) {
 //        registry.addInterceptor(loginHandler);
 //    }
+
 }

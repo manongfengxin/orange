@@ -20,9 +20,10 @@ public interface UserService extends IService<User> {
      * @param: [uservo]
      * @return: com.improve.shell.util.Result
      **/
+    @Deprecated/* 标识：已经弃用 */
     Result loginByUser(UserVo uservo);
 
-    // 账号密码登录
+    // 账号密码登录（新）
     Result accountLogin(UserVo uservo);
 
     /*
