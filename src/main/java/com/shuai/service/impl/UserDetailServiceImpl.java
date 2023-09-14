@@ -42,6 +42,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
         // 查询用户对应的权限信息
         UserVo userVo = new UserVo();
         BeanUtils.copyProperties(user,userVo);
+
+
         return userVo;
     }
 }

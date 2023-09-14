@@ -2,6 +2,7 @@ package com.shuai.filter;
 
 import com.alibaba.fastjson.JSON;
 import com.shuai.common.RedisKey;
+import com.shuai.handler.UserThreadLocal;
 import com.shuai.pojo.vo.UserVo;
 import com.shuai.util.JwtUtil;
 import com.shuai.util.RedisUtil;
@@ -48,18 +49,23 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         if (!verify){
             response.setContentType("application/json;charset=utf-8");
             response.getWriter().write(JSON.toJSONString(Result.fail("token不合法或已过期!请重新登录")));
-            throw  new RuntimeException("token不合法或已过期!请重新登录");
+            return;
         }
         //从redis中获取用户信息
         String redisKey = RedisKey.TOKEN + token;
-        UserVo userVo = redisCache.getCacheObject(redisKey);
-        if(Objects.isNull(userVo)){
-            throw new RuntimeException("用户未登录");
+        String userJson = redisCache.getCacheObject(redisKey);
+        if (com.baomidou.mybatisplus.core.toolkit.StringUtils.isBlank(userJson)){
+            response.setContentType("application/json;charset=utf-8");
+            response.getWriter().write(JSON.toJSONString(Result.fail("Redis缓存出错!请重新登录")));
+            return;
         }
+        UserVo uservo = JSON.parseObject(userJson, UserVo.class);
+        UserThreadLocal.put(uservo);
+
         //存入SecurityContextHolder
         //TODO 获取权限信息封装到Authentication中
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(userVo,null,userVo.getAuthorities());
+                new UsernamePasswordAuthenticationToken(uservo,null,uservo.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         //放行
         filterChain.doFilter(request, response);

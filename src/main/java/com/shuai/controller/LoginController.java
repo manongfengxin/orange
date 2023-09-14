@@ -38,8 +38,14 @@ public class LoginController {
         return userService.loginByUser(uservo);
     }
 
-    @NoAuth
-    @PostMapping("accountLogin")
+    /**
+     * @description: 账号密码登录（新）
+     * @author: fengxin
+     * @date: 2023/9/13 21:28
+     * @param: [uservo]
+     * @return: com.shuai.util.Result
+     **/
+    @PostMapping("/accountLogin")
     public Result accountLogin(@RequestBody UserVo uservo){
         log.info("传过来的uservo==>{}",uservo);
         return userService.accountLogin(uservo);

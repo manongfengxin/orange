@@ -24,6 +24,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Transactional
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -61,6 +64,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private WxService wxService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /* 注册用户名+并设置密码
      * @description:
@@ -125,7 +130,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 2.2 用户不存在：
         User user = new User();
         // 3. 将密码进行MD5加密
-        uservo.setPassword(MD5Utils.digest(uservo.getPassword()));
+//        uservo.setPassword(MD5Utils.digest(uservo.getPassword()));
+        uservo.setPassword(passwordEncoder.encode(uservo.getPassword()));
         // 4. 将uservo的值全部赋值给user：为了用user存入数据库
         BeanUtils.copyProperties(uservo,user);
         // 4.1 获取并设置注册时间

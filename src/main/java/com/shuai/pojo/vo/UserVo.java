@@ -1,5 +1,6 @@
 package com.shuai.pojo.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.shuai.pojo.po.User;
@@ -8,11 +9,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author: fengxin
@@ -22,8 +25,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class UserVo extends User implements UserDetails {
+public class UserVo implements UserDetails {
 
     // 主键
     @TableId(value = "id",type = IdType.AUTO)
@@ -39,7 +41,7 @@ public class UserVo extends User implements UserDetails {
     private String nickname;
 
     // 性别
-    private String gender;
+    private String sex;
 
     // 头像
     private String avatar;
@@ -64,33 +66,60 @@ public class UserVo extends User implements UserDetails {
         this.avatar = wxUserInfo.getAvatarUrl();
         this.username = "";
         this.password = "";
-        this.gender = wxUserInfo.getGender();
+        this.sex = wxUserInfo.getGender();
         this.openid = wxUserInfo.getOpenid();
         this.wxUnionId = wxUserInfo.getUnionId();
     }
 
     @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+
+    private List<String> permissions;
+
+    @JSONField(serialize = false)
+    private List<SimpleGrantedAuthority> authorities;
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        if(authorities != null){
+            return authorities;
+        }
+        //把permissions中String类型的权限信息封装成SimpleGrantedAuthority对象
+//       authorities = new ArrayList<>();
+//        for (String permission : permissions) {
+//            SimpleGrantedAuthority authority = new SimpleGrantedAuthority(permission);
+//            authorities.add(authority);
+//        }
+        authorities = permissions.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+        return authorities;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }
