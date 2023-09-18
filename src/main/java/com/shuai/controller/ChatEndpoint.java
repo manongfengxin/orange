@@ -228,17 +228,17 @@ public class ChatEndpoint {
                 e.printStackTrace();
             }
             log.info("发送在线系统信息成功！");
-        }else {
-            log.info("用户toId 不在线 ");
-            // 4. 将此系统消息存入数据库
-            Inform inform = new Inform();
-            BeanUtils.copyProperties(informVo,inform);
-            inform.setId(fromId + TimeUtil.getNowTimeString() + toId);
-            // 4.1 通过工具类手动获取 informMapper 对象
-            InformMapper informMapper = MyBeanUtil.getBean(InformMapper.class);
-            // 4.2 通知消息添加到数据库
-            informMapper.insert(inform);
-            log.info("离线通知已存入数据库！");
         }
+        // log.info("用户toId 不在线 ");
+        // 4. 将此系统消息存入数据库
+        Inform inform = new Inform();
+        BeanUtils.copyProperties(informVo,inform);
+        inform.setId(fromId + TimeUtil.getNowTimeString() + toId);
+        // 4.1 通过工具类手动获取 informMapper 对象
+        InformMapper informMapper = MyBeanUtil.getBean(InformMapper.class);
+        // 4.2 通知消息添加到数据库
+        informMapper.insert(inform);
+        log.info("离线通知已存入数据库！");
+
     }
 }

@@ -98,6 +98,14 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
         chatRecord.put("chatRecord",chatRecordList);
         chatRecord.put("nickname",chatObject.getNickname());
         chatRecord.put("avatar",chatObject.getAvatar());
+        // 3. 和聊天对象聊天的消息全部标记已读
+        ChatRecord chatRecordUpdate = new ChatRecord();
+        chatRecordUpdate.setRead(1);
+        chatRecordMapper.update(chatRecordUpdate,
+                new LambdaQueryWrapper<ChatRecord>()
+                .eq(ChatRecord::getSenderId,chatObjectId)
+                .eq(ChatRecord::getReceiverId,userId));
+
         return Result.success("获取和某人的聊天记录",chatRecord);
     }
 }

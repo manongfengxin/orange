@@ -106,7 +106,7 @@ public class LikeServiceImpl implements LikeService {
                         userId,
                         userInfo.getNickname(),
                         userInfo.getAvatar(),
-                        post.getAuthorId(),
+                        17L,/* 方便前端测试在线系统的发送：实际应改成：post.getAuthorId()*/
                         postId,
                         null,
                         post.getPostFirstPicture(),

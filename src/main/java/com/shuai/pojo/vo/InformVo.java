@@ -1,5 +1,6 @@
 package com.shuai.pojo.vo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,7 +41,21 @@ public class InformVo {
     // 消息内容
     private String content;
 
+    // 是否已读（1已读 0未读）
+    private int read;
+
     // 通知时间
     private String informTime;
 
+    public InformVo(Long fromId, String fromNickname, String fromAvatar, Long toId, String objectId, String subObjectId, String firstImage, String content, String informTime) {
+        this.fromId = fromId;
+        this.fromNickname = fromNickname;
+        this.fromAvatar = fromAvatar;
+        this.toId = toId;
+        this.objectId = objectId;
+        this.subObjectId = subObjectId;
+        this.firstImage = firstImage;
+        this.content = content;
+        this.informTime = informTime;
+    }
 }

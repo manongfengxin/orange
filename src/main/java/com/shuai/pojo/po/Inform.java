@@ -1,5 +1,6 @@
 package com.shuai.pojo.po;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,10 @@ public class Inform {
 
     // 消息内容
     private String content;
+
+    // 是否已读（1已读 0未读）
+    @TableField("`read`")
+    private int read;
 
     // 通知时间
     private String informTime;
