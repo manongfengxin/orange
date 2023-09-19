@@ -18,10 +18,10 @@ public class Inform {
     // 主键（发送者id + 时间 + 接收者id）
     private String id;
 
-    // 发送者 id
+    // 发送者（来自） id
     private Long fromId;
 
-    // 接收者 id
+    // 接收者（给予） id
     private Long toId;
 
     // 对象 id(帖子id或商品id)

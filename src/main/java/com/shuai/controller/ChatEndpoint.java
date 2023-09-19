@@ -11,6 +11,7 @@ import com.shuai.pojo.po.User;
 import com.shuai.pojo.bo.ChatRecordBo;
 import com.shuai.pojo.vo.InformVo;
 import com.shuai.service.ChatRecordService;
+import com.shuai.util.EqualUtil;
 import com.shuai.util.MessageUtils;
 import com.shuai.util.MyBeanUtil;
 import com.shuai.util.TimeUtil;
@@ -127,6 +128,13 @@ public class ChatEndpoint {
             String messageType = obj.getStr("messageType");
             // 3. 获取消息数据
             String content = obj.getStr("content");
+            // 判断参数是否正常：
+            if (EqualUtil.objectIsEmpty(receiverId,senderId,messageType,content) || Objects.equals(content,"")) {
+                String returnMessage = MessageUtils.getMessage(Constants.SYSTEM_TIP, null,"发送失败！参数异常");
+                Session senderSession = onlineUsers.get(senderId);
+                senderSession.getBasicRemote().sendText(returnMessage);
+                return;
+            }
             // 3.1 构成 浏览器发送给服务器的数据对象
             ChatRecordBo chatRecordBo = new ChatRecordBo(senderId,receiverId,content,messageType);
             // 判断用户toId是否在线
@@ -239,6 +247,5 @@ public class ChatEndpoint {
         // 4.2 通知消息添加到数据库
         informMapper.insert(inform);
         log.info("离线通知已存入数据库！");
-
     }
 }

@@ -92,7 +92,8 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
                         .eq(ChatRecord::getReceiverId, chatObjectId)
                         .or()
                         .eq(ChatRecord::getReceiverId, userId)
-                        .eq(ChatRecord::getSenderId, chatObjectId));
+                        .eq(ChatRecord::getSenderId, chatObjectId)
+                        .orderByAsc(ChatRecord::getSendTime));
         // 2. 通过 chatObjectId 查询该用户的昵称、头像
         User chatObject = userMapper.getBriefInfo(chatObjectId);
         chatRecord.put("chatRecord",chatRecordList);
