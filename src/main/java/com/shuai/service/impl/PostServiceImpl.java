@@ -293,38 +293,26 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 
     @Override
     public Result delete(String postId) {
-        // 0. 拿到当前用户id
-        Long userId = UserThreadLocal.get().getId();
-        // 1. 通过 postId 查询数据库,拿到指定帖子信息
-        Post post = postMapper.selectById(postId);
-        // 1.1 判断帖子是否存在
-        if (Objects.equals(post,null)) {
-            return Result.fail("删除失败，指定帖子不存在！");
-        }
-        // 1.2 检查是否有删除权限（只有自己可以删除）
-        if (!Objects.equals(userId,post.getAuthorId())) {
-            return Result.fail("非法删除！只可删除自己的帖子");
-        }
-        // 2.删除指定帖子及其下的评论,删除点赞、收藏、图集
-        // 2.1 删除该帖子下所有评论的点赞记录
+        // 1.删除指定帖子及其下的评论,删除点赞、收藏、图集
+        // 1.1 删除该帖子下所有评论的点赞记录
         commentLikeMapper.deleteByPostId(postId);
-        // 2.2 删除该帖子下所有的评论
+        // 1.2 删除该帖子下所有的评论
         commentMapper.delete(
                 new LambdaQueryWrapper<Comment>()
                         .eq(Comment::getPostId, postId));
-        // 2.3 删除该帖子的所有点赞记录
+        // 1.3 删除该帖子的所有点赞记录
         postLikeMapper.delete(
                 new LambdaQueryWrapper<PostLike>()
                         .eq(PostLike::getPostId, postId));
-        // 2.4 删除该帖的所有收藏记录
+        // 1.4 删除该帖的所有收藏记录
         postCollectMapper.delete(
                 new LambdaQueryWrapper<PostCollect>()
                         .eq(PostCollect::getPostId,postId));
-        // 2.5 删除该帖子的图片集
+        // 1.5 删除该帖子的图片集
         postImageMapper.delete(
                 new LambdaQueryWrapper<PostImage>()
                         .eq(PostImage::getPostId,postId));
-        // 2.6 删除该帖子记录
+        // 1.6 删除该帖子记录
         postMapper.deleteById(postId);
         return Result.success("已删除指定帖子");
     }

@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.shuai.common.RedisKey;
 import com.shuai.handler.UserThreadLocal;
+import com.shuai.mapper.MenuMapper;
 import com.shuai.mapper.UserMapper;
 import com.shuai.pojo.bo.WxAuth;
 import com.shuai.pojo.po.User;
@@ -49,6 +50,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private MenuMapper menuMapper;
 
 //    @Autowired
 //    private RedisTemplate<String,Object> redisTemplate;
@@ -121,25 +125,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      **/
     @Override
     public Result register(UserVo uservo) {
-        // 1. 通过用户名查询数据库有没有已注册的用户记录
-        User userRecord = selectUserByUsername(uservo.getUsername());
-        // 2. 判断用户存不存在
-        if (null != userRecord){
-            // 2.1 用户存在：
-            return Result.fail("该用户名已被注册！");
-        }
-        // 2.2 用户不存在：
         User user = new User();
-        // 3. 将密码进行MD5加密
+        // 0. 判断有无，参数值 用户名和密码;
+        // 0.1 有则是账号密码登录
+        // 0.2 无则是微信登录
+        if (!EqualUtil.objectIsEmpty(uservo.getUsername(),uservo.getPassword())) {
+            // 1. 通过用户名查询数据库有没有已注册的用户记录
+            User userRecord = selectUserByUsername(uservo.getUsername());
+            // 2. 判断用户存不存在
+            if (null != userRecord){
+                // 2.1 用户存在：
+                return Result.fail("该用户名已被注册！");
+            }
+            // 2.2 用户不存在：
+            // 3. 将密码进行MD5加密
 //        uservo.setPassword(MD5Utils.digest(uservo.getPassword()));
-        uservo.setPassword(passwordEncoder.encode(uservo.getPassword()));
+            uservo.setPassword(passwordEncoder.encode(uservo.getPassword()));
+        }
         // 4. 将uservo的值全部赋值给user：为了用user存入数据库
         BeanUtils.copyProperties(uservo,user);
         // 4.1 获取并设置注册时间
         user.setCreateTime(TimeUtil.getNowTime());
         // 4.2 设置默认昵称、头像
-        uservo.setNickname("昵称" + TimeUtil.getNowTimeString());
-        uservo.setAvatar("https://pic.imgdb.cn/item/64c617ea1ddac507cc683d71.webp");
+        user.setNickname("昵称" + TimeUtil.getNowTimeString());
+        user.setAvatar("https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132");
         // 向数据库添加新注册的用户
         userMapper.insert(user);
         // 添加成功后通过设置uservo的id属性为数据库的id
@@ -237,10 +246,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             User user = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getOpenid, openid));
             if (user == null) { // 不存在：
                 // 注册
+                uservo.setSex(null);
+                uservo.setUsername(null);
+                uservo.setPassword(null);
                 this.register(uservo);
             }
             User userInfo = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getOpenid, openid));
-            uservo.setId(userInfo.getId());
+            // 填充数据库的用户信息(昵称、头像)
+            BeanUtils.copyProperties(userInfo,uservo);
+            // 查询权限信息
+            List<String> list = menuMapper.getPermissions(userInfo.getId());
+            uservo.setPermissions(list);
             // 登录
             return this.login(uservo);
         } catch (Exception e) {

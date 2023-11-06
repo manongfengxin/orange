@@ -63,6 +63,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         log.info("token==>{}",token);
         boolean verify = JwtUtil.verify(token);
         if (!verify){
+            log.info("token不合法或已过期!请重新登录");
             WebUtils.renderString(response,JSON.toJSONString(Result.fail("token不合法或已过期!请重新登录")));
             return;
         }
@@ -70,6 +71,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         String redisKey = RedisKey.TOKEN + token;
         String userJson = redisCache.getCacheObject(redisKey);
         if (com.baomidou.mybatisplus.core.toolkit.StringUtils.isBlank(userJson)){
+            log.info("Redis缓存出错!请重新登录");
             WebUtils.renderString(response,JSON.toJSONString(Result.fail("Redis缓存出错!请重新登录")));
             return;
         }

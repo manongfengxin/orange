@@ -52,7 +52,7 @@ qiniu:
   accessKey: ur0mNrwWO_MNZ-AWLucpcjQAO0J34Osyx4q8Z_Mb
   secretKey: bQis5IS2t9XTvgl9Ukc8c4vucSS3Srr0hCi_vZ0-
   # 桶：就是七牛云上的空间  # 下面需要重新配置
-  bucket: shuai-orange
+  bucket: shuai-orange3
 
 
 # 微信小程序配置

@@ -77,6 +77,19 @@ public class PostController {
     @DeleteMapping("/delete")
     public Result delete(@RequestBody PostVo postVo) {
         log.info("传入：{}",postVo.getPostId());
+        // 0. 拿到当前用户id
+        Long userId = UserThreadLocal.get().getId();
+        // 1. 通过 postId 查询数据库,拿到指定帖子信息
+        Post post = postService.getById(postVo.getPostId());
+        // 1.1 判断帖子是否存在
+        if (Objects.equals(post,null)) {
+            return Result.fail("删除失败，指定帖子不存在！");
+        }
+        // 1.2 检查是否有删除权限（只有自己可以删除）
+        if (!Objects.equals(userId,post.getAuthorId())) {
+            return Result.fail("非法删除！只可删除自己的帖子");
+        }
+        // 3. 删除指定帖子
         return postService.delete(postVo.getPostId());
     }
 

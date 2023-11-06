@@ -105,7 +105,19 @@ public class ChatEndpoint {
      **/
     @OnMessage
     public void onMessage(String message, Session session) {
-        log.info("进入onMessage方法，接收到用户id：{}发来信息：{}", id, message);
+        log.info("进入onMessage方法!接收到用户id：{}发来信息：{}", id, message);
+        if (Objects.equals(message,"心跳")) {
+            log.info("接收到用户id：{}发来心跳：{}", id, message);
+            try {
+                sendText(id,"收到心跳，砰~砰~砰");
+                log.info("成功回复“心跳”");
+                return;
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
         // 0. 通过工具类手动获取 userMapper 对象
         UserMapper userMapper = MyBeanUtil.getBean(UserMapper.class);
         // 0.1 获取身份信息 判断通知消息种类：用户消息/商家消息/专家消息
@@ -131,8 +143,7 @@ public class ChatEndpoint {
             // 判断参数是否正常：
             if (EqualUtil.objectIsEmpty(receiverId,senderId,messageType,content) || Objects.equals(content,"")) {
                 String returnMessage = MessageUtils.getMessage(Constants.SYSTEM_TIP, null,"发送失败！参数异常");
-                Session senderSession = onlineUsers.get(senderId);
-                senderSession.getBasicRemote().sendText(returnMessage);
+                sendText(senderId, returnMessage);
                 return;
             }
             // 3.1 构成 浏览器发送给服务器的数据对象
@@ -142,16 +153,12 @@ public class ChatEndpoint {
                 // 用户toId在线：
                 // 4. 封装成系统发送给用户的消息格式
                 String resultMessage = MessageUtils.getMessage(informType, senderId, chatRecordBo);
-                // 5. 服务器向指定（id）客户端发送数据
-                // 5.1 获取接收消息用户id对应的ChatEndpoint对象
-                Session receiverSession = onlineUsers.get(receiverId);
-                // 5.2 通过ChatEndpoint对象给对应在线用户发送系统消息
-                receiverSession.getBasicRemote().sendText(resultMessage);
+                // 5. 给客户端发送信息
+                sendText(receiverId, resultMessage);
             }
             // 6. 向发送者反馈发送成功
             String returnMessage = MessageUtils.getMessage(Constants.SYSTEM_TIP, null,"发送成功！");
-            Session senderSession = onlineUsers.get(senderId);
-            senderSession.getBasicRemote().sendText(returnMessage);
+            sendText(senderId, returnMessage);
 
             // 7. 将当前用户发送的消息记录到数据库
             ChatRecord chatRecord = new ChatRecord();
@@ -171,6 +178,15 @@ public class ChatEndpoint {
             log.info("onMessage方法出现错误了，快去调试~");
             e.printStackTrace();
         }
+    }
+
+    /* 给客户端发送信息 */
+    private static void sendText(Long receiverId, String resultMessage) throws IOException {
+        // 1. 服务器向指定（id）客户端发送数据
+        // 1.1 获取接收消息用户id对应的ChatEndpoint对象
+        Session receiverSession = onlineUsers.get(receiverId);
+        // 2. 通过ChatEndpoint对象给对应在线用户发送系统消息
+        receiverSession.getBasicRemote().sendText(resultMessage);
     }
 
     /*
@@ -226,25 +242,22 @@ public class ChatEndpoint {
             log.info("用户toId在线");
             // 4. 封装成系统发送给用户的消息格式
             String resultMessage = MessageUtils.getMessage(Constants.SYSTEM_MESSAGE, fromId, informVo);
-            // 5. 服务器向指定（id）客户端发送数据
-            // 5.1 获取接收消息用户id对应的ChatEndpoint对象
-            Session receiverSession = onlineUsers.get(toId);
-            // 5.2 通过ChatEndpoint对象给对应在线用户发送系统消息
             try {
-                receiverSession.getBasicRemote().sendText(resultMessage);
+                // 5. 向客户端通知消息
+                sendText(toId,resultMessage);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             log.info("发送在线系统信息成功！");
         }
         // log.info("用户toId 不在线 ");
-        // 4. 将此系统消息存入数据库
+        // 6. 将此系统消息存入数据库
         Inform inform = new Inform();
         BeanUtils.copyProperties(informVo,inform);
         inform.setId(fromId + TimeUtil.getNowTimeString() + toId);
-        // 4.1 通过工具类手动获取 informMapper 对象
+        // 6.1 通过工具类手动获取 informMapper 对象
         InformMapper informMapper = MyBeanUtil.getBean(InformMapper.class);
-        // 4.2 通知消息添加到数据库
+        // 6.2 通知消息添加到数据库
         informMapper.insert(inform);
         log.info("离线通知已存入数据库！");
     }

@@ -48,6 +48,7 @@ public class InformServiceImpl extends ServiceImpl<InformMapper, Inform> impleme
             // 2.2 赋值给 informVo
             InformVo informVo = new InformVo();
             BeanUtils.copyProperties(inform,informVo);
+            informVo.setInformId(inform.getId());
             informVo.setFromNickname(user.getNickname());
             informVo.setFromAvatar(user.getAvatar());
             // 2.3 加入 informVos

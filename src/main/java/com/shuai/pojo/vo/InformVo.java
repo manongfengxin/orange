@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InformVo {
 
+    // 通知id
+    private String informId;
+
     // 发送者 id
     private Long fromId;
 

@@ -1,7 +1,11 @@
 package com.shuai.controller;
 
+import com.shuai.handler.UserThreadLocal;
+import com.shuai.pojo.vo.WxAvatarVo;
+import com.shuai.util.EqualUtil;
 import com.shuai.util.QiniuUtils;
 import com.shuai.util.Result;
+import com.shuai.util.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Base64;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -41,9 +47,47 @@ public class FileController {
         }
         //根据文件输入流原文件名获取url
         String url = qiniuUtils.upload(file.getInputStream(), file.getOriginalFilename());
+        if (EqualUtil.objectIsEmpty(url)) {
+            return Result.fail("文件上传失败！");
+        }
         log.info("文件上传成功==>{}",url);
         return Result.success("文件上传成功",url);
     }
+
+    /**
+     * @description: 微信用户上传微信头像
+     * @author: fengxin
+     * @date: 2023/9/21 18:01
+     * @param: [wxAvatarVo]
+     * @return: 文件的部分 url（需后端提供拼接）
+     **/
+    @PostMapping("/uploadWx")
+    public Result uploadWx(@RequestBody Map<String,Object> data) throws IOException {
+        log.info("传过来的数据 ==>{}",data);
+        if (Objects.equals(data,null)) {
+            return Result.fail("上传的图片资源不能为空！");
+        }
+        // 获取base64编码的数据
+        String avatarUrl = data.get("avatarUrl").toString();
+        String avatarUrlBase64 = avatarUrl.split(",")[1];
+
+        // 将其解码成字节数组
+        Base64.Decoder decoder = Base64.getDecoder();
+        byte[] bytes = decoder.decode(avatarUrlBase64);
+
+        // 上传七牛云
+        String url = qiniuUtils.upload(bytes,"Wx-" + UserThreadLocal.get().getId() + "-" + TimeUtil.getNowTimeString());
+        if (EqualUtil.objectIsEmpty(url)) {
+            return Result.fail("文件上传失败！");
+        }
+
+        log.info("文件上传成功==>{}",url);
+        return Result.success("文件上传成功",url);
+    }
+
+
+
+
 
     /**
      * @description: 上传文件(一次性最多五张)

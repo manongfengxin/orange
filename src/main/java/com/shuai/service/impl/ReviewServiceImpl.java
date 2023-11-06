@@ -102,7 +102,7 @@ public class ReviewServiceImpl implements ReviewService {
                     good.getId(),
                     reviewId,
                     good.getGoodFirstPicture(),
-                    Constants.REPLY_COMMENT + review.getContent(),
+                    Constants.COMMENT_GOOD + review.getContent(),
                     TimeUtil.getNowTime()
             );
             // 5.2.2 调用 websocket 发送消息
